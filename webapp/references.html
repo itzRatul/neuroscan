@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>References — NeuroScan</title>
+  <meta name="description" content="The one paper, two datasets, and open-source libraries that NeuroScan is built on." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="page-hero">
+      <img class="page-hero-bg"
+           src="https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1800&q=80&auto=format&fit=crop"
+           alt=""
+           aria-hidden="true" />
+      <div class="page-hero-overlay"></div>
+      <div class="container">
+        <div class="page-hero-breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="crumb-sep">/</span>
+          <span>Research</span>
+          <span class="crumb-sep">/</span>
+          <span>References</span>
+        </div>
+        <h1>What this project is built on.</h1>
+        <p class="lead">One clinical paper, two datasets, and the open-source libraries powering NeuroScan.</p>
+      </div>
+    </section>
+
+    <!-- PAPER -->
+    <section class="section">
+      <div class="container">
+
+        <div class="section-head section-head-tight">
+          <span class="section-kicker">Clinical paper</span>
+          <h2>The <span class="accent">medical basis</span> for the scoring.</h2>
+        </div>
+
+        <div class="ref-row-list">
+
+          <div class="ref-row" id="ref-1">
+            <span class="ref-row-num">01</span>
+            <div class="ref-row-body">
+              <div class="ref-row-title">Cincinnati Prehospital Stroke Scale: reproducibility and validity</div>
+              <div class="ref-row-meta">Kothari, R. U., Pancioli, A., Liu, T., Brott, T., &amp; Broderick, J. · <em>Annals of Emergency Medicine</em>, 33(4), 373–378</div>
+              <div class="ref-row-meta" style="margin-top:4px; color: var(--text-soft);">
+                Used for: the 50&nbsp;/&nbsp;25&nbsp;/&nbsp;25 score weighting (smile vs. eye close vs. eye open). Facial droop is the most sensitive CPSS sign.
+              </div>
+            </div>
+            <span class="ref-row-year">1999</span>
+            <a class="ref-row-doi" href="https://doi.org/10.1016/S0196-0644(99)70299-4" target="_blank" rel="noopener">
+              DOI
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- DATASETS -->
+    <section class="section section-surface">
+      <div class="container">
+
+        <div class="section-head section-head-tight">
+          <span class="section-kicker">Training datasets</span>
+          <h2>Where the <span class="accent">thresholds</span> come from.</h2>
+        </div>
+
+        <div class="ref-row-list">
+
+          <div class="ref-row" id="ref-2">
+            <span class="ref-row-num">02</span>
+            <div class="ref-row-body">
+              <div class="ref-row-title">Annotated Facial Images for Stroke Classification</div>
+              <div class="ref-row-meta">Elhanashy, A. · Kaggle · 2,490 stroke + 5,000 normal facial images</div>
+              <div class="ref-row-meta" style="margin-top:4px; color: var(--text-soft);">
+                Used for: calibrating score thresholds — Normal ≤30, Moderate &gt;30, High Risk &gt;60.
+              </div>
+            </div>
+            <span class="ref-row-year">Dataset</span>
+            <a class="ref-row-doi" href="https://www.kaggle.com/datasets/abdussalamelhanashy/annotated-facial-images-for-stroke-classification" target="_blank" rel="noopener">
+              Kaggle
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </div>
+
+          <div class="ref-row" id="ref-3">
+            <span class="ref-row-num">03</span>
+            <div class="ref-row-body">
+              <div class="ref-row-title">Facial Droop and Facial Paralysis Images</div>
+              <div class="ref-row-meta">Mehta, K. · Kaggle · 1,024 labelled palsy images across severity spectrum</div>
+              <div class="ref-row-meta" style="margin-top:4px; color: var(--text-soft);">
+                Used for: tuning eye-close ratio (0.35) and eye-open ratio (1.25).
+              </div>
+            </div>
+            <span class="ref-row-year">Dataset</span>
+            <a class="ref-row-doi" href="https://www.kaggle.com/datasets/kaitavmehta/facial-droop-and-facial-paralysis-image" target="_blank" rel="noopener">
+              Kaggle
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- LIBRARIES -->
+    <section class="section">
+      <div class="container">
+
+        <div class="section-head section-head-tight">
+          <span class="section-kicker">Open-source software</span>
+          <h2>The <span class="accent">libraries</span> doing the work.</h2>
+        </div>
+
+        <div class="ref-lib-grid">
+          <article class="ref-lib-card">
+            <span class="ref-lib-tag">Vision</span>
+            <h4>Google MediaPipe — Face Landmarker</h4>
+            <p>The 468-landmark face mesh powering every phase measurement in the browser.</p>
+            <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker" target="_blank" rel="noopener" class="ref-lib-link">
+              ai.google.dev/edge → face_landmarker
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+          <article class="ref-lib-card">
+            <span class="ref-lib-tag">CV</span>
+            <h4>OpenCV</h4>
+            <p>Image I/O and frame preprocessing in the Jupyter notebook (Apache 2.0).</p>
+            <a href="https://opencv.org" target="_blank" rel="noopener" class="ref-lib-link">
+              opencv.org
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+          <article class="ref-lib-card">
+            <span class="ref-lib-tag">Math</span>
+            <h4>NumPy</h4>
+            <p>All asymmetry arithmetic in the notebook — vector ops on landmark arrays (BSD).</p>
+            <a href="https://numpy.org" target="_blank" rel="noopener" class="ref-lib-link">
+              numpy.org
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+          <article class="ref-lib-card">
+            <span class="ref-lib-tag">Charts</span>
+            <h4>Chart.js 4.4</h4>
+            <p>Bar, doughnut, and grouped bar charts on the test results screen (MIT).</p>
+            <a href="https://www.chartjs.org" target="_blank" rel="noopener" class="ref-lib-link">
+              chartjs.org
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+          <article class="ref-lib-card">
+            <span class="ref-lib-tag">PDF</span>
+            <h4>jsPDF + html2canvas</h4>
+            <p>Renders the result panel into a downloadable PDF, fully in the browser (MIT).</p>
+            <a href="https://github.com/parallax/jsPDF" target="_blank" rel="noopener" class="ref-lib-link">
+              github.com/parallax/jsPDF
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+            </a>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section-tight">
+      <div class="container">
+        <a class="next-page cta-gradient" href="test.html">
+          <div>
+            <div class="next-page-meta">You've read enough.</div>
+            <h3>Take the 16-second test now.</h3>
+          </div>
+          <div class="next-page-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="assets/nav.js"></script>
+</body>
+</html>

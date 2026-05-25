@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Take the test — NeuroScan</title>
+  <meta name="description" content="Run the live NeuroScan stroke-screening test in your browser. 16 seconds, five phases, 100% on-device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- ============== COMPACT PAGE HERO ============== -->
+    <section class="page-hero page-hero-compact">
+      <div class="container">
+        <div>
+          <div class="page-hero-breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="crumb-sep">/</span>
+            <span>Take the test</span>
+          </div>
+          <h1>Live screening test</h1>
+          <p class="lead">Follow the on-screen prompts. The test takes about 16 seconds.</p>
+        </div>
+        <button id="btn-cancel" class="btn btn-small btn-cancel" aria-label="Cancel the test and return to home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          Cancel test
+        </button>
+      </div>
+    </section>
+
+    <!-- ============== TEST STAGE ============== -->
+    <div class="test-wrap">
+
+      <div class="test-left">
+        <div class="video-stage">
+          <video id="webcam" autoplay playsinline muted></video>
+          <canvas id="overlay"></canvas>
+
+          <div class="phase-badge">
+            <span id="phase-label">Initialising…</span>
+          </div>
+
+          <div class="action-prompt waiting" id="action-prompt">
+            <div class="prompt-icon" id="prompt-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            </div>
+            <div class="prompt-text" id="prompt-text">Please allow camera access</div>
+            <div class="prompt-sub" id="prompt-sub">Click "Allow" in the browser prompt</div>
+          </div>
+
+          <div class="progress-ring" id="progress-ring">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="44" class="ring-bg"/>
+              <circle cx="50" cy="50" r="44" class="ring-fg" id="ring-fg"/>
+            </svg>
+            <div class="ring-text" id="ring-text">0</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="test-right">
+        <div class="step-list">
+          <div class="step" data-step="0">
+            <span class="step-num">1</span>
+            <div><div class="step-title">Rest</div><div class="step-desc">Keep your face natural</div></div>
+          </div>
+          <div class="step" data-step="1">
+            <span class="step-num">2</span>
+            <div><div class="step-title">Smile</div><div class="step-desc">Smile and hold</div></div>
+          </div>
+          <div class="step" data-step="2">
+            <span class="step-num">3</span>
+            <div><div class="step-title">Close eyes</div><div class="step-desc">Gently close both eyes</div></div>
+          </div>
+          <div class="step" data-step="3">
+            <span class="step-num">4</span>
+            <div><div class="step-title">Open eyes</div><div class="step-desc">Open them wide</div></div>
+          </div>
+          <div class="step" data-step="4">
+            <span class="step-num">5</span>
+            <div><div class="step-title">Smile again</div><div class="step-desc">Confirm second smile</div></div>
+          </div>
+        </div>
+
+        <div class="live-metrics">
+          <div class="metric">
+            <div class="metric-label">Face detected</div>
+            <div class="metric-value" id="m-face">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Frame rate</div>
+            <div class="metric-value" id="m-fps">— FPS</div>
+          </div>
+        </div>
+
+        <div class="callout callout-blue callout-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+          <div>Your camera feed never leaves your browser. The model and your face data both stay on this device.</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ============== RESULTS PANEL (hidden until test finishes) ============== -->
+    <div class="results-panel" id="results-panel">
+      <div id="report-area" class="report">
+        <header class="report-header">
+          <div>
+            <div class="report-kicker">NeuroScan · Test Report</div>
+            <h2 id="report-title">Test complete</h2>
+            <div class="report-meta" id="report-meta">—</div>
+          </div>
+          <div class="verdict" id="verdict">
+            <div class="verdict-label">Risk level</div>
+            <div class="verdict-value" id="verdict-text">—</div>
+            <div class="verdict-score"><span id="verdict-score">0</span><small>/100</small></div>
+          </div>
+        </header>
+
+        <div class="report-grid">
+          <div class="chart-card">
+            <h3>Asymmetry breakdown</h3>
+            <p class="chart-sub">Per-phase asymmetry on a 0–1 scale (higher = more asymmetric).</p>
+            <canvas id="chart-bars"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Score composition</h3>
+            <p class="chart-sub">How each phase contributed to your final score.</p>
+            <canvas id="chart-pie"></canvas>
+          </div>
+          <div class="chart-card chart-wide">
+            <h3>Left vs right movement</h3>
+            <p class="chart-sub">Pixel-distance moved by each side during action phases.</p>
+            <canvas id="chart-side"></canvas>
+          </div>
+        </div>
+
+        <!-- ML Model secondary prediction -->
+        <div class="ml-card" id="ml-card">
+          <div class="ml-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 0 0 0-2.526 5.77"/></svg>
+            <span>ML Model Validation</span>
+            <span class="ml-badge" id="ml-badge">Checking…</span>
+          </div>
+          <div class="ml-card-body">
+            <div class="ml-stat" id="ml-prediction">—</div>
+            <div class="ml-sub"  id="ml-confidence">Waiting for server response…</div>
+          </div>
+        </div>
+
+        <div class="recommendations">
+          <h3>Recommendation</h3>
+          <p id="recommendation-text">—</p>
+        </div>
+
+        <footer class="report-footer-note">
+          NeuroScan is a screening tool, not a medical diagnosis. Always consult a clinician.
+        </footer>
+      </div>
+
+      <div class="action-row">
+        <button id="btn-download" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          Download PDF report
+        </button>
+        <button id="btn-retest" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.74 9.74 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Run the test again
+        </button>
+        <button id="btn-home" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+          Back to home
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- External libraries (loaded only on the test page) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="assets/nav.js"></script>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

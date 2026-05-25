@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test protocol — NeuroScan</title>
+  <meta name="description" content="The five-phase guided stroke screening test — a 16-second visual journey from REST to the final SMILE confirmation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="page-hero">
+      <img class="page-hero-bg"
+           src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1800&q=80&auto=format&fit=crop"
+           alt=""
+           aria-hidden="true" />
+      <div class="page-hero-overlay"></div>
+      <div class="container">
+        <div class="page-hero-breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="crumb-sep">/</span>
+          <span>Learn</span>
+          <span class="crumb-sep">/</span>
+          <span>Protocol</span>
+        </div>
+        <h1>Five phases.<br/>Sixteen seconds.</h1>
+        <p class="lead">Each step targets a specific muscle group that stroke commonly affects.</p>
+      </div>
+    </section>
+
+    <!-- JOURNEY MAP -->
+    <section class="section section-surface">
+      <div class="container">
+
+        <div class="section-head section-head-center">
+          <span class="section-kicker">Step by step</span>
+          <h2>The <span class="accent">16-second</span> journey.</h2>
+        </div>
+
+        <div class="proto-journey">
+
+          <!-- 1: REST -->
+          <div class="proto-step">
+            <div class="proto-track-row">
+              <div class="proto-line invis"></div>
+              <div class="proto-node pn-1">01</div>
+              <div class="proto-line"></div>
+            </div>
+            <span class="proto-time">00:00 → 00:04</span>
+            <div class="proto-card pc-1">
+              <span class="proto-badge">4 s · auto</span>
+              <div class="proto-name">REST</div>
+              <p class="proto-desc">Face natural, look straight at the camera. Sets your per-person landmark baseline.</p>
+              <p class="proto-note">Every later reading is a <em>delta</em> from this frame.</p>
+            </div>
+          </div>
+
+          <!-- 2: SMILE -->
+          <div class="proto-step">
+            <div class="proto-track-row">
+              <div class="proto-line"></div>
+              <div class="proto-node pn-2">02</div>
+              <div class="proto-line"></div>
+            </div>
+            <span class="proto-time">00:04 → 00:07</span>
+            <div class="proto-card pc-2">
+              <span class="proto-badge">3 s · action</span>
+              <div class="proto-name">SMILE</div>
+              <p class="proto-desc">Smile naturally. Measures the upward pixel delta of each mouth corner.</p>
+              <p class="proto-note">The "F" in FAST — drooping mouth corner is the strongest stroke sign.</p>
+            </div>
+          </div>
+
+          <!-- 3: EYES CLOSE -->
+          <div class="proto-step">
+            <div class="proto-track-row">
+              <div class="proto-line"></div>
+              <div class="proto-node pn-3">03</div>
+              <div class="proto-line"></div>
+            </div>
+            <span class="proto-time">00:07 → 00:10</span>
+            <div class="proto-card pc-3">
+              <span class="proto-badge">3 s · action</span>
+              <div class="proto-name">EYES CLOSE</div>
+              <p class="proto-desc">Close both eyes gently. Measures closure ratio vs rest on each side.</p>
+              <p class="proto-note">Cranial nerve VII — affected side may fail to fully seal (lagophthalmos).</p>
+            </div>
+          </div>
+
+          <!-- 4: EYES OPEN -->
+          <div class="proto-step">
+            <div class="proto-track-row">
+              <div class="proto-line"></div>
+              <div class="proto-node pn-4">04</div>
+              <div class="proto-line"></div>
+            </div>
+            <span class="proto-time">00:10 → 00:13</span>
+            <div class="proto-card pc-4">
+              <span class="proto-badge">3 s · action</span>
+              <div class="proto-name">EYES OPEN</div>
+              <p class="proto-desc">Open eyes as wide as possible. Measures opening height on each side.</p>
+              <p class="proto-note">Asymmetric ptosis (drooping eyelid) is a classic stroke indicator.</p>
+            </div>
+          </div>
+
+          <!-- 5: SMILE AGAIN -->
+          <div class="proto-step">
+            <div class="proto-track-row">
+              <div class="proto-line"></div>
+              <div class="proto-node pn-5">05</div>
+              <div class="proto-line invis"></div>
+            </div>
+            <span class="proto-time">00:13 → 00:16</span>
+            <div class="proto-card pc-5">
+              <span class="proto-badge">3 s · action</span>
+              <div class="proto-name">SMILE AGAIN</div>
+              <p class="proto-desc">One last smile. Compared against phase 02 to confirm reproducibility.</p>
+              <p class="proto-note">Two consistent readings rule out a single-frame glitch.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- timing note -->
+        <div class="callout callout-blue spaced-top">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div><strong>Action-triggered timing.</strong> Each 3-second window starts only after NeuroScan detects you performing the action — not when the instruction appears.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- NEXT -->
+    <section class="section-tight">
+      <div class="container">
+        <a class="next-page" href="scoring.html">
+          <div>
+            <div class="next-page-meta">Up next · 04 of 06</div>
+            <h3>From pixels to a 0–100 score — the scoring formula explained.</h3>
+          </div>
+          <div class="next-page-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroScan — Stroke screening in your browser</title>
+  <meta name="description" content="A 16-second browser-based test that detects facial asymmetry — an early sign of stroke — using your webcam. Built on Google MediaPipe. No data leaves your device." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- ============== HERO ============== -->
+    <section class="hero-full">
+      <img class="hero-bg"
+           src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1800&q=80&auto=format&fit=crop"
+           alt=""
+           aria-hidden="true" />
+      <div class="hero-overlay"></div>
+
+      <div class="container">
+        <div class="hero-text">
+          <span class="hero-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            FAST · Face component · 16-second screening
+          </span>
+
+          <h1>A 16-second test that could<br/>
+              <span class="accent">save a life.</span></h1>
+
+          <p class="lead">
+            NeuroScan measures facial-movement asymmetry — the strongest early indicator of stroke —
+            using only your webcam. Built on Google MediaPipe, runs 100% in your browser.
+            No sign-up. No data leaves your device.
+          </p>
+
+          <div class="hero-actions">
+            <a href="test.html" class="btn btn-primary btn-big">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Start the test now
+            </a>
+            <a href="how-it-works.html" class="btn btn-light btn-big">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M10 7v6M10 14v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              How it works
+            </a>
+          </div>
+
+          <div class="hero-trust">
+            <div><strong>100%</strong><span>On-device</span></div>
+            <div><strong>16 s</strong><span>Test duration</span></div>
+            <div><strong>468</strong><span>Face landmarks</span></div>
+            <div><strong>FAST</strong><span>Clinical basis</span></div>
+          </div>
+        </div>
+
+        <!-- ============== HERO VISUAL — face scan 1:1 ============== -->
+        <div class="hero-visual" aria-hidden="true">
+
+          <!-- Illustrated face card (no photo) -->
+          <svg class="hero-face-svg" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="dotGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                <circle cx="10" cy="10" r="0.7" fill="rgba(147,197,253,.15)"/>
+              </pattern>
+            </defs>
+
+            <!-- Dot grid background -->
+            <rect width="400" height="400" fill="url(#dotGrid)"/>
+
+            <!-- Outer scan rings -->
+            <circle cx="200" cy="195" r="148" stroke="rgba(31,111,235,.18)" stroke-width="1" stroke-dasharray="3 9" fill="none"/>
+            <circle cx="200" cy="195" r="128" stroke="rgba(31,111,235,.32)" stroke-width="1.5" stroke-dasharray="4 6" fill="none"/>
+
+            <!-- Corner bracket overlays (HUD) -->
+            <g stroke="rgba(147,197,253,.5)" stroke-width="1.5" stroke-linecap="round" fill="none">
+              <path d="M28 68 L28 28 L68 28"/>
+              <path d="M372 68 L372 28 L332 28"/>
+              <path d="M28 332 L28 372 L68 372"/>
+              <path d="M372 332 L372 372 L332 372"/>
+            </g>
+
+            <!-- Face silhouette (head ellipse) -->
+            <ellipse cx="200" cy="192" rx="76" ry="96" stroke="rgba(147,197,253,.55)" stroke-width="1.8" fill="rgba(31,111,235,.04)"/>
+
+            <!-- Eye outline rings (subtle) -->
+            <ellipse cx="174" cy="174" rx="15" ry="11" stroke="rgba(147,197,253,.25)" stroke-width="1" fill="none"/>
+            <ellipse cx="226" cy="174" rx="15" ry="11" stroke="rgba(147,197,253,.25)" stroke-width="1" fill="none"/>
+
+            <!-- Eye dots (filled blue) -->
+            <circle cx="174" cy="174" r="6" fill="#1f6feb"/>
+            <circle cx="226" cy="174" r="6" fill="#1f6feb"/>
+            <circle cx="174" cy="174" r="2.5" fill="rgba(255,255,255,.6)"/>
+            <circle cx="226" cy="174" r="2.5" fill="rgba(255,255,255,.6)"/>
+
+            <!-- Nose hint -->
+            <path d="M200 190 L196 208 Q200 211 204 208 Z" stroke="rgba(147,197,253,.3)" stroke-width="1" fill="none"/>
+
+            <!-- Mouth curve -->
+            <path d="M180 224 Q200 242 220 224" stroke="rgba(147,197,253,.75)" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+            <!-- Landmark dots (jaw + forehead) -->
+            <g fill="rgba(147,197,253,.45)">
+              <circle cx="132" cy="205" r="2"/><circle cx="128" cy="188" r="2"/>
+              <circle cx="143" cy="238" r="2"/><circle cx="162" cy="258" r="2"/>
+              <circle cx="200" cy="265" r="2"/><circle cx="238" cy="258" r="2"/>
+              <circle cx="257" cy="238" r="2"/><circle cx="268" cy="205" r="2"/>
+              <circle cx="272" cy="188" r="2"/>
+              <circle cx="164" cy="148" r="2"/><circle cx="200" cy="142" r="2"/>
+              <circle cx="236" cy="148" r="2"/>
+            </g>
+
+            <!-- Green accent landmarks (key measurement points) -->
+            <g fill="#10b981">
+              <circle cx="148" cy="174" r="2.8"/>
+              <circle cx="252" cy="174" r="2.8"/>
+              <circle cx="200" cy="224" r="2.8"/>
+              <circle cx="163" cy="258" r="2.8"/>
+              <circle cx="237" cy="258" r="2.8"/>
+            </g>
+          </svg>
+
+          <div class="hero-visual-scanline"></div>
+
+          <div class="hero-visual-badge">
+            <span class="live-dot"></span>
+            <span>Live Preview</span>
+          </div>
+
+          <div class="hero-visual-statsbar">
+            <div class="hero-stat-item">
+              <span class="hero-stat-label">Landmarks</span>
+              <strong class="hero-stat-value">468</strong>
+            </div>
+            <div class="hero-stat-sep"></div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-label">Latency</span>
+              <strong class="hero-stat-value">&lt;30ms</strong>
+            </div>
+            <div class="hero-stat-sep"></div>
+            <div class="hero-stat-item">
+              <span class="hero-stat-label">FPS</span>
+              <strong class="hero-stat-value">30</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 3 HIGHLIGHT CARDS ============== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-kicker">What's inside</span>
+          <h2>Three things that make NeuroScan <span class="accent">different.</span></h2>
+          <p class="section-lead">
+            Most camera-based screeners check static asymmetry — which fails the moment a person
+            is already mid-stroke. We rebuilt the approach from the ground up.
+          </p>
+        </div>
+
+        <div class="highlight-grid">
+          <article class="highlight-card">
+            <span class="highlight-bar bar-blue"></span>
+            <div class="highlight-icon icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v2"/><path d="M12 2v2"/><path d="M17 20v2"/><path d="M17 2v2"/><path d="M2 12h2"/><path d="M2 17h2"/><path d="M2 7h2"/><path d="M20 12h2"/><path d="M20 17h2"/><path d="M20 7h2"/><path d="M7 20v2"/><path d="M7 2v2"/><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
+            </div>
+            <div class="highlight-meta">01 · The model</div>
+            <h3>Built on Google MediaPipe</h3>
+            <p>
+              The same 468-landmark face-tracking model that powers Google Meet and Android.
+              Production-grade reliability, sub-30 ms latency, fully on-device.
+            </p>
+            <a href="technology.html" class="highlight-link">
+              See the technology
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </article>
+
+          <article class="highlight-card">
+            <span class="highlight-bar bar-green"></span>
+            <div class="highlight-icon icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+            </div>
+            <div class="highlight-meta">02 · The method</div>
+            <h3>A five-phase guided test</h3>
+            <p>
+              Rest, smile, close eyes, open eyes wide, smile again. Each step is grounded in
+              the cranial-nerve anatomy used by ER doctors today.
+            </p>
+            <a href="protocol.html" class="highlight-link">
+              View the protocol
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </article>
+
+          <article class="highlight-card">
+            <span class="highlight-bar bar-orange"></span>
+            <div class="highlight-icon icon-orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>
+            </div>
+            <div class="highlight-meta">03 · The insight</div>
+            <h3>Movement, not static asymmetry</h3>
+            <p>
+              We measure how each side <em>responds</em> to a command — not how it looks at rest.
+              That makes the test robust even when the baseline is already affected.
+            </p>
+            <a href="how-it-works.html" class="highlight-link">
+              Read the rationale
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== QUOTE BANNER ============== -->
+    <section class="section-tight">
+      <div class="container">
+        <div class="quote-banner">
+          <img loading="lazy"
+               src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=1800&q=80&auto=format&fit=crop"
+               alt=""
+               aria-hidden="true" />
+          <div class="quote-banner-content">
+            <div class="quote-icon" aria-hidden="true">&ldquo;</div>
+            <p class="quote-text">
+              In acute stroke, every minute of delay costs about 1.9 million neurons.
+              The faster a screening prompts someone to act, the better the outcome.
+            </p>
+            <p class="quote-attr">
+              <strong>FAST clinical protocol</strong> · American Heart Association
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== CTA STRIP ============== -->
+    <section class="section">
+      <div class="container">
+        <div class="next-page cta-gradient">
+          <div>
+            <div class="next-page-meta">Ready when you are</div>
+            <h3>Take the 16-second test in your browser.</h3>
+          </div>
+          <a href="test.html" class="cta-action">
+            Start the test
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="assets/nav.js"></script>
+</body>
+</html>
