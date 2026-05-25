@@ -23,7 +23,7 @@ This project automates the **F (Face)** component of the FAST scale using comput
 
 | Service | URL |
 |---|---|
-| **Web App** | [neuroscan.vercel.app](https://neuroscan.vercel.app) |
+| **Web App** | [neuroscan-diu.vercel.app](https://neuroscan-diu.vercel.app) |
 | **Backend API** | [itzratul-neuroscan-backend.hf.space](https://itzratul-neuroscan-backend.hf.space) |
 
 ---
