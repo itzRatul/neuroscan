@@ -7,7 +7,7 @@
 // ── Hugging Face backend URL ──────────────────────────────────
 // After deploying to HF Spaces, replace this with your Space URL.
 // Example: "https://your-username-neuroscan-backend.hf.space"
-const HF_API = "https://YOUR_USERNAME-neuroscan-backend.hf.space";
+const HF_API = "https://itzratul-neuroscan-backend.hf.space";
 // ─────────────────────────────────────────────────────────────
 
 import {
