@@ -4,12 +4,6 @@
    MediaPipe Face Landmarker + Web Speech + Chart.js + jsPDF.
 ============================================================ */
 
-// ── Hugging Face backend URL ──────────────────────────────────
-// After deploying to HF Spaces, replace this with your Space URL.
-// Example: "https://your-username-neuroscan-backend.hf.space"
-const HF_API = "https://itzratul-neuroscan-backend.hf.space";
-// ─────────────────────────────────────────────────────────────
-
 import {
   FaceLandmarker,
   FilesetResolver,
@@ -457,36 +451,6 @@ function avg(arr) {
   return o;
 }
 
-/* ---------- ML backend call ---------- */
-async function fetchMLPrediction(mouthAsym, eyeAsym) {
-  const card = document.getElementById("ml-card");
-  const badge = document.getElementById("ml-badge");
-  const pred  = document.getElementById("ml-prediction");
-  const conf  = document.getElementById("ml-confidence");
-  if (!card) return;
-
-  try {
-    const res = await fetch(`${HF_API}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mouth_asym: mouthAsym, eye_asym: eyeAsym, brow_asym: 0 }),
-    });
-    if (!res.ok) throw new Error("Server error");
-    const data = await res.json();
-
-    const isStroke = data.prediction === "stroke";
-    badge.textContent = isStroke ? "Stroke detected" : "Normal";
-    badge.className   = "ml-badge " + (isStroke ? "ml-badge-high" : "ml-badge-normal");
-    pred.textContent  = `${data.confidence}% confidence`;
-    conf.textContent  = `Model probability: ${(data.probability * 100).toFixed(1)}%`;
-  } catch {
-    badge.textContent = "Unavailable";
-    badge.className   = "ml-badge ml-badge-off";
-    pred.textContent  = "Could not reach ML backend.";
-    conf.textContent  = "Deploy the backend on Hugging Face first.";
-  }
-}
-
 /* ---------- Finish ---------- */
 function finishTest() {
   running = false;
@@ -525,10 +489,6 @@ function finishTest() {
     side: measurements.sideMove,
   });
   showResults();
-
-  // ML backend — secondary validation (non-blocking)
-  const eyeAsym = (closeAsym + openAsym) / 2;
-  fetchMLPrediction(smileAvg, eyeAsym);
 }
 
 /* ---------- Show / hide results panel ---------- */
