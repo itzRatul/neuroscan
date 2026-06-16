@@ -1,0 +1,11 @@
+{
+  "title": "Stroke Treatment",
+  "ischemic_stroke": [
+    "Alteplase (IV r-tPA): A clot-dissolving medicine. Must be given within 4.5 hours of symptom onset.",
+    "Endovascular Procedures: Doctors may remove the clot directly from the blocked blood vessel in the brain."
+  ],
+  "hemorrhagic_stroke": [
+    "Controlling bleeding and reducing pressure in the brain.",
+    "Surgery may be required to repair blood vessel abnormalities like aneurysms."
+  ]
+}

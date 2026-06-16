@@ -482,13 +482,43 @@ function finishTest() {
   }
 
   speak(voice);
-  renderResults({
+  const resultData = {
     score, verdict, verdictClass, recommendation,
     smile1: measurements.smile1, smile2: measurements.smile2,
     smileAvg, closeAsym, openAsym,
     side: measurements.sideMove,
-  });
+  };
+
+  renderResults(resultData);
   showResults();
+
+  // ----- Send to Chat Backend Webhook -----
+  const sessionId = sessionStorage.getItem('chat_session_id');
+  if (sessionId) {
+    const formattedResult = {
+      prediction: {
+        percentage: score,
+        risk_level: verdict,
+        color_hint: verdictClass
+      },
+      features: {
+        smile1_asymmetry: measurements.smile1,
+        smile2_asymmetry: measurements.smile2,
+        eyes_close_asymmetry: closeAsym,
+        eyes_open_asymmetry: openAsym
+      }
+    };
+    
+    const host = window.location.hostname || 'localhost';
+    fetch(`http://${host}:8001/webhook/test_result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        result_data: formattedResult
+      })
+    }).catch(e => console.error("Failed to sync 16s test result to chat:", e));
+  }
 }
 
 /* ---------- Show / hide results panel ---------- */
@@ -506,6 +536,12 @@ function hideResults() {
 let charts = { bars: null, pie: null, side: null };
 
 function renderResults(r) {
+  // Set default Chart.js colors for dark mode
+  if (window.Chart) {
+    Chart.defaults.color = "#94a3b8";
+    Chart.defaults.borderColor = "rgba(255, 255, 255, 0.08)";
+  }
+
   // ML card reset করো যাতে retest-এ "Checking…" দেখায়
   const mlBadge = $("ml-badge");
   if (mlBadge) {
@@ -539,7 +575,7 @@ function renderResults(r) {
       datasets: [{
         label: "Asymmetry",
         data: [r.smile1, r.smile2, r.smileAvg, r.closeAsym, r.openAsym].map((x) => +x.toFixed(3)),
-        backgroundColor: ["#93c5fd", "#93c5fd", "#1f6feb", "#a78bfa", "#34d399"],
+        backgroundColor: ["#60a5fa", "#60a5fa", "#3b82f6", "#a78bfa", "#10b981"],
         borderRadius: 6,
       }],
     },
@@ -547,7 +583,7 @@ function renderResults(r) {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, max: 1, grid: { color: "#eef1f6" }, ticks: { font: { size: axisFontSize } } },
+        y: { beginAtZero: true, max: 1, grid: { color: "rgba(255, 255, 255, 0.05)" }, ticks: { font: { size: axisFontSize } } },
         x: {
           grid: { display: false },
           ticks: {
@@ -570,7 +606,7 @@ function renderResults(r) {
     type: "doughnut",
     data: {
       labels: ["Smile (50%)", "Eyes Close (25%)", "Eyes Open (25%)"],
-      datasets: [{ data: pieData, backgroundColor: ["#1f6feb", "#a78bfa", "#34d399"], borderWidth: 0 }],
+      datasets: [{ data: pieData, backgroundColor: ["#3b82f6", "#a78bfa", "#10b981"], borderWidth: 0 }],
     },
     options: {
       responsive: true, maintainAspectRatio: false, cutout: "60%",
@@ -588,7 +624,7 @@ function renderResults(r) {
     data: {
       labels: ["Mouth corner (smile)", "Eye opening (wide)"],
       datasets: [
-        { label: "Left side",  data: [+r.side.leftMouth.toFixed(2),  +(r.side.leftEye  * 100).toFixed(2)], backgroundColor: "#1f6feb", borderRadius: 6 },
+        { label: "Left side",  data: [+r.side.leftMouth.toFixed(2),  +(r.side.leftEye  * 100).toFixed(2)], backgroundColor: "#3b82f6", borderRadius: 6 },
         { label: "Right side", data: [+r.side.rightMouth.toFixed(2), +(r.side.rightEye * 100).toFixed(2)], backgroundColor: "#f59e0b", borderRadius: 6 },
       ],
     },
@@ -601,7 +637,7 @@ function renderResults(r) {
         },
       },
       scales: {
-        y: { beginAtZero: true, grid: { color: "#eef1f6" }, ticks: { font: { size: axisFontSize } } },
+        y: { beginAtZero: true, grid: { color: "rgba(255, 255, 255, 0.05)" }, ticks: { font: { size: axisFontSize } } },
         x: { grid: { display: false }, ticks: { font: { size: axisFontSize } } },
       },
     },

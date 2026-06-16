@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroScan - AI Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        /* ── Page Specific Chat Styles ── */
+        .chat-section {
+            padding: 3rem 0 5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 1050px;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            height: 85vh;
+            min-height: 600px;
+            max-height: 950px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glow behind chat */
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .chat-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .chat-header-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .chat-header-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .chat-header-info h2 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: -0.01em;
+        }
+
+        .chat-header-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        .chat-box::-webkit-scrollbar { width: 6px; }
+        .chat-box::-webkit-scrollbar-track { background: transparent; }
+        .chat-box::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .chat-box::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .message-row {
+            display: flex;
+            gap: 1rem;
+            max-width: 85%;
+            animation: slideUp 0.3s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+            position: relative;
+        }
+
+        .message-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin: 0 4px;
+        }
+
+        .user-row .message-time { align-self: flex-end; }
+        .bot-row .message-time { align-self: flex-start; }
+
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-row.user-row {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-row.bot-row { align-self: flex-start; }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bot-avatar { background: linear-gradient(135deg, #1e293b, #0f172a); color: #38bdf8; }
+        .user-avatar { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .avatar svg { width: 18px; height: 18px; }
+
+        .message-bubble {
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            line-height: 1.65;
+            font-size: 1rem;
+            color: #f1f5f9;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Markdown styling inside bubble */
+        .message-bubble p { margin: 0 0 0.75rem 0; }
+        .message-bubble p:last-child { margin-bottom: 0; }
+        .message-bubble strong { color: #fff; font-weight: 600; }
+        .message-bubble ul, .message-bubble ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+        .message-bubble li { margin-bottom: 0.25rem; }
+        .message-bubble code { background: rgba(0,0,0,0.2); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
+
+        .bot-row .message-bubble {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top-left-radius: 4px;
+        }
+
+        .user-row .message-bubble {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-top-right-radius: 4px;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            padding: 1rem 1.25rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border-top-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .dots { display: flex; gap: 4px; align-items: center; }
+        .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input Area Custom Styling to match request */
+        .input-wrapper {
+            margin: 1.25rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .input-wrapper input {
+            flex-grow: 1;
+            min-width: 0;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-wrapper input::placeholder { color: #64748b; }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .action-btn.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+        }
+
+        .action-btn.listening {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+            animation: pulse-mic 1.5s infinite;
+        }
+
+        @keyframes pulse-mic {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .send-btn:active { transform: translateY(0); }
+        .send-btn svg { width: 18px; height: 18px; }
+
+        @media (max-width: 640px) {
+            body {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+            .chat-section {
+                padding: 0;
+                height: calc(100vh - 60px);
+                height: calc(100dvh - 60px);
+                overflow: hidden;
+            }
+            .chat-section .container {
+                padding: 0 !important;
+                max-width: none;
+                width: 100%;
+            }
+            .chat-header {
+                display: none;
+            }
+            .chat-container {
+                height: 100%;
+                max-height: none;
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .message-row { max-width: 95%; }
+            .input-wrapper { margin: 0.75rem; gap: 0.25rem; }
+            .input-wrapper input { padding: 0.75rem 0.5rem; }
+            #ttsBtn {
+                display: none !important;
+            }
+        }
+
+        /* Top navbar styles for speaker button - hidden globally */
+        #ttsBtn {
+            display: none !important;
+        }
+        #ttsBtn.nav-tts-btn {
+            display: none !important;
+            border: none;
+            background: transparent;
+            color: var(--text-soft);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        #ttsBtn.nav-tts-btn:hover {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+        #ttsBtn.nav-tts-btn.active {
+            color: var(--brand);
+            background: var(--brand-soft);
+        }
+
+        /* Bot avatar voice active animation */
+        .bot-avatar {
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .bot-avatar:hover {
+            transform: scale(1.08);
+            border-color: var(--brand, #3b82f6);
+        }
+        .speaker-on .bot-avatar {
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            animation: pulse-avatar 2s infinite ease-in-out;
+        }
+        @keyframes pulse-avatar {
+            0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 14px rgba(16, 185, 129, 0.8); }
+        }
+
+        /* Toast notification feedback */
+        .toast-feedback {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-3, #1e293b);
+            color: var(--text, #f3f4f6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+            font-size: 0.825rem;
+            font-weight: 600;
+            z-index: 1000;
+            animation: toastFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: none;
+        }
+        @keyframes toastFadeIn {
+            from { opacity: 0; transform: translate(-50%, 10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <div id="site-header"></div>
+
+    <main id="main">
+        <section class="chat-section">
+            <div class="container" style="display:flex; justify-content:center; width: 100%;">
+                
+                <div class="chat-container">
+                    
+                    <!-- Header -->
+                    <div class="chat-header">
+                        <div class="chat-header-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                        </div>
+                        <div class="chat-header-info">
+                            <h2>NeuroBot AI</h2>
+                            <p><span class="status-dot"></span> Online &amp; Ready</p>
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="chat-box" id="chatBox">
+                        
+                        <div class="message-row bot-row">
+                            <div class="avatar bot-avatar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                            </div>
+                            <div class="message-content-wrapper">
+                                <div class="message-bubble">
+                                    <p>Hello! I am NeuroBot, an AI assistant for NeuroScan. I can answer your questions about stroke symptoms, emergencies, treatments, and recovery.</p><p>If you recently took a facial scan, you can ask me to explain your results in detail!</p>
+                                </div>
+                                <div class="message-time">System</div>
+                            </div>
+                        </div>
+
+                        <!-- Typing Indicator Element -->
+                        <div class="message-row bot-row" id="typingIndicatorRow" style="display: none;">
+                            <div class="avatar bot-avatar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                            </div>
+                            <div class="typing-indicator" id="typingIndicator">
+                                <div class="dots">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Input Area -->
+                    <form class="input-wrapper" id="chatForm">
+                        <input type="text" id="userInput" placeholder="Ask any question about stroke..." required autocomplete="off">
+                        <div class="input-actions">
+                            <button type="button" id="micBtn" class="action-btn" aria-label="Voice input" title="Start voice mode">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                            </button>
+                            <button type="button" id="ttsBtn" class="action-btn" aria-label="Toggle voice output" title="Toggle voice output">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <button type="submit" class="send-btn" aria-label="Send message" title="Send message">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="site-footer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="assets/nav.js"></script>
+
+    <script>
+        // Session ID & Chat History Persistence via localStorage
+        let sessionId = localStorage.getItem('ns_chat_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('ns_chat_session_id', sessionId);
+        }
+
+        const CHAT_HISTORY_KEY = 'ns_chat_history_' + sessionId;
+
+        function saveHistory(text, isUser) {
+            const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+            history.push({ text, isUser, time: new Date().toISOString() });
+            // Keep last 50 messages only
+            if (history.length > 50) history.splice(0, history.length - 50);
+            localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem(CHAT_HISTORY_KEY) || '[]');
+            history.forEach(({ text, isUser }) => appendMessage(text, isUser, false));
+        }
+
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const chatBox = document.getElementById('chatBox');
+        const typingIndicatorRow = document.getElementById('typingIndicatorRow');
+        const micBtn = document.getElementById('micBtn');
+        const ttsBtn = document.getElementById('ttsBtn');
+
+        const host = window.location.hostname || 'localhost';
+        const CHAT_BACKEND_URL = localStorage.getItem('ns_chat_backend_url') || `http://${host}:8001`;
+        const CHAT_API_URL = `${CHAT_BACKEND_URL}/chat`;
+
+        // Relocate speaker button next to top navbar brand logo
+        window.addEventListener('load', () => {
+            const brand = document.querySelector('.brand');
+            if (brand && ttsBtn) {
+                ttsBtn.classList.add('nav-tts-btn');
+                brand.parentNode.insertBefore(ttsBtn, brand.nextSibling);
+                ttsBtn.style.marginLeft = '12px';
+            }
+        });
+
+        // Mobile keyboard focus & viewport resize scroll handling
+        userInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 150);
+        });
+        window.addEventListener('resize', () => {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Toast feedback notifier
+        function showToast(msg) {
+            const existing = document.querySelector('.toast-feedback');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-feedback';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.2s ease';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 200);
+            }, 1800);
+        }
+
+        // Toggle speaker state helper
+        function toggleTts(forceState) {
+            if (forceState !== undefined) {
+                ttsEnabled = forceState;
+            } else {
+                ttsEnabled = !ttsEnabled;
+            }
+            
+            ttsBtn.classList.toggle('active', ttsEnabled);
+            
+            if (ttsEnabled) {
+                chatBox.classList.add('speaker-on');
+                showToast("Voice output enabled");
+            } else {
+                chatBox.classList.remove('speaker-on');
+                window.speechSynthesis.cancel();
+                showToast("Voice output muted");
+            }
+        }
+
+        // Delegate listener to toggle voice output on bot avatar click
+        chatBox.addEventListener('click', (e) => {
+            const avatar = e.target.closest('.bot-avatar');
+            if (avatar) {
+                toggleTts();
+            }
+        });
+
+        const botSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>`;
+        const userSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+
+        let ttsEnabled = false;
+        let isFetching = false;
+        let autoListenMode = false; // continuous voice conversation mode
+
+        ttsBtn.addEventListener('click', () => toggleTts());
+
+        function speak(text) {
+            if (!ttsEnabled || !window.speechSynthesis) {
+                // If TTS is disabled, immediately check if we should restart mic
+                if (autoListenMode) {
+                    setTimeout(startListening, 500);
+                }
+                return;
+            }
+            window.speechSynthesis.cancel(); // stop previous
+            
+            // Strip markdown formatting for cleaner speech
+            const cleanText = text.replace(/[*_#`]/g, '').replace(/\n/g, ' ');
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            
+            // Prefer Bengali voice if available, else default
+            const voices = window.speechSynthesis.getVoices();
+            const bnVoice = voices.find(v => v.lang.includes('bn'));
+            if (bnVoice) utterance.voice = bnVoice;
+            else utterance.lang = 'bn-BD'; // Fallback hint
+            
+            utterance.rate = 1.0;
+
+            // When speech ends, automatically resume listening if in voice mode (like DAIC)
+            utterance.onend = () => {
+                if (autoListenMode) {
+                    setTimeout(startListening, 500);
+                }
+            };
+            utterance.onerror = () => {
+                if (autoListenMode) {
+                    setTimeout(startListening, 500);
+                }
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ---------- DAIC Voice Logic (Speech to Text) ----------
+        let recognition = null;
+        let isListening = false;
+        let silenceTimer = null;
+        const SPEECH_SILENCE_MS = 1500;
+
+        function initSpeech() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                micBtn.style.display = 'none';
+                return;
+            }
+            recognition = new SR();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'bn-BD'; // Defaulting to Bengali per user request
+
+            recognition.onresult = (e) => {
+                let finalText = '';
+                let interimText = '';
+                for (let i = 0; i < e.results.length; i++) {
+                    const result = e.results[i];
+                    const text = result[0].transcript;
+                    if (result.isFinal) finalText += text + ' ';
+                    else interimText = text;
+                }
+                const currentTranscript = (finalText + interimText).trim();
+                userInput.value = currentTranscript;
+
+                clearTimeout(silenceTimer);
+                if (currentTranscript) {
+                    silenceTimer = setTimeout(() => {
+                        if (isListening && !isFetching) {
+                            stopListening();
+                            chatForm.dispatchEvent(new Event('submit'));
+                        }
+                    }, SPEECH_SILENCE_MS);
+                }
+            };
+
+            recognition.onerror = (e) => {
+                console.error("Speech recognition error:", e);
+                // Restart if error is no-speech and we are in voice mode
+                if (e.error === 'no-speech' && autoListenMode && !isFetching) {
+                    try { recognition.stop(); } catch(err) {}
+                    setTimeout(() => {
+                        if (autoListenMode && !isFetching && !isListening) {
+                            startListening();
+                        }
+                    }, 500);
+                } else {
+                    stopListening();
+                }
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                micBtn.classList.remove('listening');
+                // Restart recognition if autoListenMode is active and not fetching response
+                if (autoListenMode && !isFetching && !window.speechSynthesis.speaking) {
+                    setTimeout(() => {
+                        if (autoListenMode && !isFetching && !isListening) {
+                            startListening();
+                        }
+                    }, 500);
+                }
+            };
+        }
+
+        function startListening() {
+            if (!recognition || isFetching) return;
+            window.speechSynthesis.cancel(); // Stop bot from talking over us
+            isListening = true;
+            micBtn.classList.add('listening');
+            userInput.placeholder = "Listening... (Speak now)";
+            userInput.value = '';
+            try { recognition.start(); } catch (e) {}
+        }
+
+        function stopListening() {
+            isListening = false;
+            micBtn.classList.remove('listening');
+            userInput.placeholder = "Ask any question about stroke...";
+            clearTimeout(silenceTimer);
+            try { recognition.stop(); } catch (e) {}
+        }
+
+        micBtn.addEventListener('click', () => {
+            if (autoListenMode) {
+                autoListenMode = false;
+                stopListening();
+            } else {
+                autoListenMode = true;
+                // Auto-enable speaker for voice conversation
+                toggleTts(true);
+                startListening();
+            }
+        });
+
+        initSpeech();
+        // ------------------------------------------------------
+
+        function appendMessage(text, isUser, save = true) {
+            if (save) saveHistory(text, isUser);
+            const row = document.createElement('div');
+            row.className = 'message-row ' + (isUser ? 'user-row' : 'bot-row');
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar ' + (isUser ? 'user-avatar' : 'bot-avatar');
+            avatar.innerHTML = isUser ? userSvg : botSvg;
+
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'message-content-wrapper';
+
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            if (isUser) {
+                bubble.textContent = text;
+            } else {
+                bubble.innerHTML = marked.parse(text);
+            }
+
+            const timeLabel = document.createElement('div');
+            timeLabel.className = 'message-time';
+            const now = new Date();
+            timeLabel.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            contentWrapper.appendChild(bubble);
+            contentWrapper.appendChild(timeLabel);
+
+            row.appendChild(avatar);
+            row.appendChild(contentWrapper);
+
+            chatBox.insertBefore(row, typingIndicatorRow);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text || isFetching) return;
+
+            stopListening(); // Stop mic temporarily while generating response
+            isFetching = true;
+            appendMessage(text, true);
+            userInput.value = '';
+            
+            chatBox.appendChild(typingIndicatorRow);
+            typingIndicatorRow.style.display = 'flex';
+            typingIndicatorRow.querySelector('.typing-indicator').style.display = 'block';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch(CHAT_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        session_id: sessionId
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Error");
+
+                const data = await response.json();
+                typingIndicatorRow.style.display = 'none';
+                
+                appendMessage(data.response, false);
+                speak(data.response); // TTS Output (will auto-restart mic if autoListenMode is true)
+
+            } catch (error) {
+                console.error("Chat error:", error);
+                typingIndicatorRow.style.display = 'none';
+                appendMessage("Sorry, I'm having trouble connecting to the server right now. Please try again later.", false);
+                if (autoListenMode) {
+                    setTimeout(startListening, 1000);
+                }
+            } finally {
+                isFetching = false;
+            }
+        });
+
+        // Restore previous chat messages — called last so appendMessage is defined
+        loadHistory();
+    </script>
+</body>
+</html>

@@ -9,6 +9,132 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Hero Layout overrides ── */
+    .hero-full {
+      background: radial-gradient(circle at 50% 50%, rgba(8, 14, 28, 0.6), var(--bg));
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-bg {
+      opacity: 0.18 !important;
+      filter: grayscale(40%) contrast(110%);
+    }
+    .hero-full h1 {
+      font-size: 3.75rem;
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: -.025em;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 22px;
+    }
+    .hero-full h1 .accent {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-full .lead {
+      color: var(--text-soft);
+    }
+    
+    /* Stats Row styled as glass pills */
+    .hero-trust {
+      gap: 1.5rem !important;
+    }
+    .hero-trust > div {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 18px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .hero-trust strong {
+      color: #60a5fa !important;
+      font-size: 1.6rem !important;
+    }
+    .hero-trust span {
+      color: var(--text-mute) !important;
+      font-size: 10px !important;
+    }
+
+    /* Hero visual HUD animations */
+    .hero-visual {
+      background: rgba(8, 14, 28, 0.8) !important;
+      border: 1px solid rgba(59, 130, 246, 0.15) !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(59, 130, 246, 0.1);
+    }
+    .rotate-dash-1 {
+      transform-origin: 200px 195px;
+      animation: rot1 32s linear infinite;
+    }
+    .rotate-dash-2 {
+      transform-origin: 200px 195px;
+      animation: rot2 22s linear infinite reverse;
+    }
+    @keyframes rot1 {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes rot2 {
+      to { transform: rotate(360deg); }
+    }
+    
+    .pulse-green-dot {
+      animation: pDot 2.2s infinite ease-in-out;
+    }
+    @keyframes pDot {
+      0%, 100% { r: 2.8px; opacity: 0.7; fill-opacity: 0.7; }
+      50% { r: 5px; opacity: 1; fill-opacity: 1; filter: drop-shadow(0 0 5px #10b981); }
+    }
+    .pulse-bracket {
+      animation: pBracket 3.5s infinite ease-in-out alternate;
+    }
+    @keyframes pBracket {
+      0% { stroke: rgba(147,197,253,.35); }
+      100% { stroke: rgba(59, 130, 246, 0.9); filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4)); }
+    }
+    
+    .hero-visual-statsbar {
+      background: rgba(6, 11, 22, 0.95) !important;
+      border-top: 1px solid rgba(59, 130, 246, 0.15) !important;
+    }
+    .hero-stat-label {
+      color: rgba(147, 197, 253, 0.5) !important;
+    }
+    .hero-stat-value {
+      color: #ffffff !important;
+    }
+    .hero-stat-sep {
+      background: rgba(59, 130, 246, 0.15) !important;
+    }
+
+    /* ── Quote Banner section ── */
+    .quote-banner {
+      border: 1px solid var(--border);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+      border-radius: 20px;
+    }
+    .quote-banner img {
+      opacity: 0.22 !important;
+      filter: brightness(80%) grayscale(30%);
+    }
+
+    /* ── Responsive styling ── */
+    @media (max-width: 900px) {
+      .hero-full .container {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .hero-visual {
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .hero-full h1 {
+        font-size: 2.75rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -46,7 +172,7 @@
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               Start the test now
             </a>
-            <a href="how-it-works.html" class="btn btn-light btn-big">
+            <a href="research.html" class="btn btn-light btn-big">
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M10 7v6M10 14v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               How it works
             </a>
@@ -74,12 +200,12 @@
             <!-- Dot grid background -->
             <rect width="400" height="400" fill="url(#dotGrid)"/>
 
-            <!-- Outer scan rings -->
-            <circle cx="200" cy="195" r="148" stroke="rgba(31,111,235,.18)" stroke-width="1" stroke-dasharray="3 9" fill="none"/>
-            <circle cx="200" cy="195" r="128" stroke="rgba(31,111,235,.32)" stroke-width="1.5" stroke-dasharray="4 6" fill="none"/>
+            <!-- Outer scan rings (Animated rotation) -->
+            <circle cx="200" cy="195" r="148" stroke="rgba(31,111,235,.18)" stroke-width="1" stroke-dasharray="3 9" fill="none" class="rotate-dash-1"/>
+            <circle cx="200" cy="195" r="128" stroke="rgba(31,111,235,.32)" stroke-width="1.5" stroke-dasharray="4 6" fill="none" class="rotate-dash-2"/>
 
-            <!-- Corner bracket overlays (HUD) -->
-            <g stroke="rgba(147,197,253,.5)" stroke-width="1.5" stroke-linecap="round" fill="none">
+            <!-- Corner bracket overlays (Animated HUD) -->
+            <g stroke="rgba(147,197,253,.5)" stroke-width="1.5" stroke-linecap="round" fill="none" class="pulse-bracket">
               <path d="M28 68 L28 28 L68 28"/>
               <path d="M372 68 L372 28 L332 28"/>
               <path d="M28 332 L28 372 L68 372"/>
@@ -116,13 +242,13 @@
               <circle cx="236" cy="148" r="2"/>
             </g>
 
-            <!-- Green accent landmarks (key measurement points) -->
+            <!-- Green accent landmarks (Animated sensor pulse) -->
             <g fill="#10b981">
-              <circle cx="148" cy="174" r="2.8"/>
-              <circle cx="252" cy="174" r="2.8"/>
-              <circle cx="200" cy="224" r="2.8"/>
-              <circle cx="163" cy="258" r="2.8"/>
-              <circle cx="237" cy="258" r="2.8"/>
+              <circle cx="148" cy="174" r="2.8" class="pulse-green-dot"/>
+              <circle cx="252" cy="174" r="2.8" class="pulse-green-dot"/>
+              <circle cx="200" cy="224" r="2.8" class="pulse-green-dot"/>
+              <circle cx="163" cy="258" r="2.8" class="pulse-green-dot"/>
+              <circle cx="237" cy="258" r="2.8" class="pulse-green-dot"/>
             </g>
           </svg>
 
@@ -177,7 +303,7 @@
               The same 468-landmark face-tracking model that powers Google Meet and Android.
               Production-grade reliability, sub-30 ms latency, fully on-device.
             </p>
-            <a href="technology.html" class="highlight-link">
+            <a href="research.html" class="highlight-link">
               See the technology
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
@@ -194,7 +320,7 @@
               Rest, smile, close eyes, open eyes wide, smile again. Each step is grounded in
               the cranial-nerve anatomy used by ER doctors today.
             </p>
-            <a href="protocol.html" class="highlight-link">
+            <a href="research.html" class="highlight-link">
               View the protocol
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
@@ -211,7 +337,7 @@
               We measure how each side <em>responds</em> to a command — not how it looks at rest.
               That makes the test robust even when the baseline is already affected.
             </p>
-            <a href="how-it-works.html" class="highlight-link">
+            <a href="research.html" class="highlight-link">
               Read the rationale
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
@@ -243,17 +369,21 @@
     </section>
 
     <!-- ============== CTA STRIP ============== -->
-    <section class="section">
+    <section class="section-tight" style="padding-bottom: 90px;">
       <div class="container">
-        <div class="next-page cta-gradient">
+        <div class="next-page cta-gradient" style="box-shadow: 0 10px 40px rgba(59, 130, 246, 0.25);">
           <div>
-            <div class="next-page-meta">Ready when you are</div>
-            <h3>Take the 16-second test in your browser.</h3>
+            <div class="next-page-meta" style="color:rgba(255,255,255,0.7); font-family:var(--mono);">SCREENING OPTIONS</div>
+            <h3 style="font-size:1.5rem; font-weight:800; color:#ffffff; margin-top:0.25rem;">Perform an asymmetry screening now</h3>
           </div>
-          <a href="test.html" class="cta-action">
-            Start the test
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
+          <div style="display:flex; gap:1.25rem; flex-wrap:wrap; margin-top:1rem; align-items: center;">
+            <a href="photo-scan.html" class="cta-action cta-btn-white">
+              Upload Photo Scan
+            </a>
+            <a href="test.html" class="cta-action cta-btn-outline">
+              16s Live Webcam Test &rarr;
+            </a>
+          </div>
         </div>
       </div>
     </section>

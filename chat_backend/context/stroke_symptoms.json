@@ -1,0 +1,16 @@
+{
+  "title": "Stroke Symptoms (F.A.S.T.)",
+  "symptoms": [
+    "Face Drooping: One side of the face droops or is numb. Smile is uneven.",
+    "Arm Weakness: One arm is weak or numb. When raised, one arm drifts downward.",
+    "Speech Difficulty: Speech is slurred, or the person is unable to speak or hard to understand.",
+    "Time to call Emergency: If the person shows any of these symptoms, call emergency services immediately."
+  ],
+  "other_symptoms": [
+    "Sudden numbness or weakness of leg, face, or arm, especially on one side of the body.",
+    "Sudden confusion or trouble understanding.",
+    "Sudden trouble seeing in one or both eyes.",
+    "Sudden trouble walking, dizziness, loss of balance or coordination.",
+    "Sudden severe headache with no known cause."
+  ]
+}

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Asymmetry Scan — NeuroScan</title>
+  <meta name="description" content="Upload a single headshot to analyze facial asymmetry and predict stroke risk using MediaPipe and a trained ML classifier." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    /* ── Photo Scan page — extra styles ─────────────────────────── */
+
+    /* Hero layout */
+    .hero-actions-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Upload Zone */
+    .upload-section {
+      padding: 2.5rem 0 2rem;
+    }
+    .upload-zone {
+      border: 2px dashed var(--border-strong, rgba(255, 255, 255, 0.16));
+      border-radius: var(--radius-md, 14px);
+      padding: 2.25rem 1.5rem;
+      text-align: center;
+      transition: border-color .25s, background-color .25s, box-shadow .25s;
+      background: var(--surface, #080e1a);
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-zone:focus-within {
+      box-shadow: var(--focus-ring);
+      border-color: var(--brand, #3b82f6);
+    }
+    .upload-zone.drag-over {
+      border-color: var(--brand, #3b82f6);
+      background: var(--brand-soft, rgba(59, 130, 246, 0.12));
+    }
+    .upload-zone.has-file {
+      border-style: solid;
+      border-color: var(--brand, #3b82f6);
+      background: var(--brand-soft, rgba(59, 130, 246, 0.12));
+    }
+    .upload-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon {
+      width: 44px; height: 44px;
+      margin: 0 auto 1rem;
+      color: var(--brand, #3b82f6);
+      transition: transform 0.2s;
+    }
+    .upload-label:hover .upload-icon {
+      transform: translateY(-4px);
+    }
+    .upload-zone h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 .4rem; color: var(--text); }
+    .upload-zone p  { font-size: .85rem; color: var(--text-soft); margin: 0 0 1.25rem; }
+    
+    .upload-zone .btn-presentation {
+      pointer-events: none; /* Let the label handle click */
+      user-select: none;
+    }
+
+    .preview-wrap {
+      display: none;
+      margin-top: 1.5rem;
+      position: relative;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+      z-index: 5;
+    }
+    .preview-wrap.visible { display: block; }
+    .preview-wrap img {
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: var(--radius-sm, 10px);
+      object-fit: contain;
+      border: 2px solid var(--brand, #3b82f6);
+      box-shadow: var(--shadow-md);
+      display: block;
+      margin: 0 auto;
+    }
+    .preview-clear {
+      position: absolute; top: -10px; right: -10px;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--red, #ef4444); color: #fff;
+      border: none; cursor: pointer;
+      font-size: 0.9rem; line-height: 28px; text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.15s, transform 0.15s;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-clear:hover {
+      background: var(--brand-dark, #1856bd);
+      transform: scale(1.1);
+    }
+
+    /* Analyze button */
+    /* Analyze area layout */
+    .analyze-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+      text-align: center;
+      width: 100%;
+    }
+    #btn-analyze {
+      min-width: 220px;
+      justify-content: center;
+      padding: 16px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm, 10px);
+      box-shadow: 0 4px 18px rgba(31, 111, 235, .25);
+      transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+    }
+    #btn-analyze:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(31, 111, 235, .4);
+    }
+    #btn-analyze:disabled {
+      background: var(--border-strong, rgba(255, 255, 255, 0.16));
+      color: var(--text-mute, #64748b);
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      opacity: 0.65;
+      pointer-events: none;
+    }
+    .analyze-privacy-note {
+      font-size: 0.825rem;
+      color: var(--text-soft, #94a3b8);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      max-width: 480px;
+      line-height: 1.4;
+      margin: 0;
+    }
+    .analyze-privacy-note svg {
+      color: var(--brand, #3b82f6);
+      flex-shrink: 0;
+    }
+
+    /* Loading state */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      background: var(--surface, #080e1a);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-top: 1.5rem;
+    }
+    .loading-state.visible { display: block; }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 4px solid var(--surface-2, #0f172a);
+      border-top-color: var(--brand, #3b82f6);
+      border-radius: 50%;
+      animation: spin .85s linear infinite;
+      margin: 0 auto 1.25rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error banner */
+    .error-banner {
+      display: none;
+      background: var(--red-soft, #fee2e2); border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-sm, 10px); padding: 1.1rem 1.4rem;
+      color: var(--red, #ef4444); margin-top: 1.5rem;
+      align-items: center; gap: .75rem;
+      position: relative;
+    }
+    .error-banner.visible { display: flex; }
+    .error-banner svg { flex-shrink: 0; width: 22px; height: 22px; }
+    .error-close-btn {
+      background: none;
+      border: none;
+      color: var(--red, #ef4444);
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-left: auto;
+      padding: 4px 8px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .error-close-btn:hover {
+      opacity: 1;
+    }
+
+    /* Results */
+    .results-section {
+      display: none;
+      padding: 1.5rem 0 3rem;
+    }
+    .results-section.visible { display: block; }
+
+    /* Risk card */
+    .risk-card {
+      border-radius: var(--radius-md, 14px);
+      padding: 2rem;
+      display: flex; align-items: center; gap: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .risk-card.green  { background: var(--green-soft, rgba(16, 185, 129, 0.12)); border: 1.5px solid var(--green); }
+    .risk-card.orange { background: var(--orange-soft, rgba(245, 158, 11, 0.12)); border: 1.5px solid var(--orange); }
+    .risk-card.red    { background: var(--red-soft, rgba(239, 68, 68, 0.12)); border: 1.5px solid var(--red); }
+
+    .risk-pct {
+      font-size: 3.5rem; font-weight: 800; line-height: 1;
+      font-family: var(--mono);
+    }
+    .risk-card.green  .risk-pct { color: var(--green); }
+    .risk-card.orange .risk-pct { color: var(--orange); }
+    .risk-card.red    .risk-pct { color: var(--red); }
+
+    .risk-label { font-size: 1.2rem; font-weight: 700; margin-bottom: .4rem; text-transform: uppercase; letter-spacing: 0.02em; }
+    .risk-card.green  .risk-label { color: var(--green); }
+    .risk-card.orange .risk-label { color: var(--orange); }
+    .risk-card.red    .risk-label { color: var(--red); }
+    
+    .risk-sublabel { font-size: .95rem; color: var(--text-soft); font-weight: 500; }
+
+    /* Visual outputs */
+    .visuals-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .visual-card {
+      background: var(--surface, #080e1a);
+      border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+      border-radius: var(--radius-md, 14px);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .visual-card h3 {
+      font-size: .95rem; font-weight: 700;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+      margin: 0;
+      background: var(--surface-2, #0f172a);
+      color: var(--text);
+    }
+    .visual-card img {
+      width: 100%; display: block;
+      object-fit: contain;
+      max-height: 340px;
+      background: #0f0f1a;
+      transition: opacity 0.2s;
+    }
+
+    /* Feature table */
+    .feature-section {
+      margin-bottom: 2.5rem;
+    }
+    .feature-section h3 {
+      font-size: 1.15rem; font-weight: 700;
+      margin: 0 0 .5rem;
+      color: var(--text);
+    }
+    .feature-section p {
+      font-size: .9rem;
+      color: var(--text-soft);
+    }
+    
+    /* Table Scroller container queries (scroll indicators) */
+    .table-scroller-wrap {
+      position: relative;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .table-scroller {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-sm, 10px);
+      border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+      box-shadow: var(--shadow-sm);
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      align-items: stretch;
+    }
+    .sentinel-left, .sentinel-right {
+      width: 1px;
+      flex-shrink: 0;
+    }
+    
+    /* Gradient shadows for scroll indicators */
+    .table-scroller-wrap::before, .table-scroller-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 36px;
+      pointer-events: none;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .table-scroller-wrap::before {
+      left: 0;
+      background: linear-gradient(90deg, rgba(8, 14, 26, 0.8), transparent);
+    }
+    .table-scroller-wrap::after {
+      right: 0;
+      background: linear-gradient(270deg, rgba(8, 14, 26, 0.8), transparent);
+    }
+    
+    /* Active indicators classes toggled on the wrapper */
+    .table-scroller-wrap.can-scroll-left::before { opacity: 1; }
+    .table-scroller-wrap.can-scroll-right::after { opacity: 1; }
+
+    .feature-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+      background: var(--surface, #080e1a);
+      min-width: 680px; /* Force overflow on small screens for responsive scroll */
+      flex-grow: 1;
+      flex-shrink: 0;
+    }
+    .feature-table th {
+      background: var(--surface-3); color: #ffffff;
+      padding: 0.85rem 1rem;
+      text-align: left; font-weight: 600;
+    }
+    .feature-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+      color: var(--text);
+    }
+    .feature-table tr:last-child td {
+      border-bottom: none;
+    }
+    .feature-table tr:nth-child(even) td { background: var(--surface-2, #0f172a); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-weight: 700; font-size: .8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .status-badge.normal {
+      background: var(--green-soft, #d1fae5);
+      color: var(--green);
+    }
+    .status-badge.high {
+      background: var(--red-soft, #fee2e2);
+      color: var(--red);
+    }
+
+    /* Action row */
+    .result-actions {
+      display: flex; gap: 1.25rem; flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .result-actions .btn {
+      min-width: 180px;
+      justify-content: center;
+    }
+    #btn-pdf.loading {
+      opacity: 0.8;
+      cursor: wait;
+      pointer-events: none;
+    }
+
+    /* Disclaimer */
+    .disclaimer-note {
+      margin-top: 2.5rem;
+      font-size: .8rem; color: var(--text-mute);
+      font-style: italic;
+      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+      line-height: 1.5;
+    }
+
+    /* ── Mobile Responsive Overrides ────────────────────────────── */
+    @media (max-width: 768px) {
+      .visuals-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .visual-card img {
+        max-height: 300px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-hero {
+        padding: 28px 0 20px;
+      }
+      .page-hero h1 {
+        font-size: 1.6rem;
+        letter-spacing: -.02em;
+      }
+      .page-hero .lead {
+        font-size: 0.9rem;
+        line-height: 1.45;
+      }
+
+      
+      .upload-section {
+        padding: 1.5rem 0 1.5rem;
+      }
+      .upload-zone {
+        padding: 1.75rem 1rem;
+      }
+      .upload-icon {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 0.75rem;
+      }
+      .upload-zone h3 {
+        font-size: 1rem;
+      }
+      .upload-zone p {
+        font-size: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .preview-wrap {
+        max-width: 100%;
+      }
+      .preview-wrap img {
+        max-height: 220px;
+      }
+
+      .risk-card {
+        padding: 1.5rem 1.25rem;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.25rem;
+      }
+      .risk-pct {
+        font-size: 2.75rem;
+      }
+      .risk-label {
+        font-size: 1.05rem;
+      }
+      .risk-sublabel {
+        font-size: 0.85rem;
+      }
+
+      .analyze-area {
+        margin-top: 1.5rem;
+      }
+      #btn-analyze {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .result-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .result-actions .btn {
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .settings-modal {
+        padding: 1.25rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- ══ PAGE HERO ══ -->
+    <section class="page-hero page-hero-compact">
+      <div class="container">
+        <div class="hero-actions-container">
+          <div>
+            <div class="page-hero-breadcrumb">
+              <a href="index.html">Home</a>
+              <span class="crumb-sep">/</span>
+              <span>Photo Scan</span>
+            </div>
+            <h1>Photo asymmetry scan</h1>
+            <p class="lead">Upload a single headshot photo to analyze facial asymmetry and predict stroke risk.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+
+      <!-- ══ UPLOAD SECTION ══ -->
+      <section class="upload-section" aria-labelledby="upload-heading">
+        <div class="upload-zone" id="upload-zone">
+          <label for="file-input" class="upload-label">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-label="Select face photo" />
+
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" x2="12" y1="3" y2="15"/>
+            </svg>
+
+            <h3 id="upload-heading">Drag &amp; drop your face photo here</h3>
+            <p>Supports JPG, PNG, WEBP. Ensure the face is facing forward and well-lit.</p>
+            <span class="btn btn-primary btn-presentation" role="presentation">
+              Choose Image File
+            </span>
+          </label>
+
+          <!-- Preview -->
+          <div class="preview-wrap" id="preview-wrap">
+            <button class="preview-clear" id="preview-clear" title="Remove image" aria-label="Remove selected image" type="button">✕</button>
+            <img id="preview-img" src="" alt="Selected face photo preview" />
+          </div>
+        </div>
+
+        <!-- Error banner -->
+        <div class="error-banner" id="error-banner" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+          </svg>
+          <span id="error-text">An error occurred.</span>
+          <button id="error-close" class="error-close-btn" aria-label="Dismiss error" type="button">✕</button>
+        </div>
+
+        <!-- Analyze button container -->
+        <div class="analyze-area">
+          <button class="btn btn-primary btn-big" id="btn-analyze" disabled aria-disabled="true" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:20px;height:20px">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            Analyze Photo
+          </button>
+          <p class="analyze-privacy-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:2px">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+            </svg>
+            Analysis runs on our secure server. Your photo is processed and immediately discarded.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══ LOADING ══ -->
+      <div class="loading-state" id="loading-state" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loading-msg" style="font-weight:600;font-size:1rem;margin:0 0 .3rem">Running MediaPipe landmark detection…</p>
+        <p style="font-size:.875rem;color:var(--text-soft);margin:0">Extracting 6 asymmetry features from 468 face landmarks</p>
+      </div>
+
+      <!-- ══ RESULTS ══ -->
+      <section class="results-section" id="results-section" aria-labelledby="results-heading" aria-live="polite">
+        <h2 id="results-heading" style="margin-bottom:1.5rem">Scan Report</h2>
+
+        <!-- Risk card -->
+        <div class="risk-card" id="risk-card">
+          <div>
+            <div class="risk-pct" id="risk-pct">—</div>
+            <div style="font-size:.85rem;color:var(--text-soft);margin-top:.2rem;font-weight:600">Overall Asymmetry Score</div>
+          </div>
+          <div>
+            <div class="risk-label" id="risk-label">—</div>
+            <div class="risk-sublabel" id="risk-sublabel">—</div>
+          </div>
+        </div>
+
+        <!-- Annotated image + Gauge -->
+        <div class="visuals-grid">
+          <div class="visual-card">
+            <h3>Visual Facial Mesh Examination</h3>
+            <img id="annotated-img" src="" alt="Annotated face with landmark markers" loading="lazy" />
+          </div>
+          <div class="visual-card">
+            <h3>Asymmetry Score Gauge</h3>
+            <img id="gauge-img" src="" alt="Semicircular gauge showing overall asymmetry score" loading="lazy" />
+          </div>
+        </div>
+
+        <!-- Feature table -->
+        <div class="feature-section">
+          <h3>Detailed Asymmetry Breakdown</h3>
+          <p style="font-size:.875rem;margin:0 0 1rem">
+            6 facial asymmetry metrics from MediaPipe 468-point landmarks.
+            <span style="color:var(--green);font-weight:700">✓ Normal</span> = within clinical threshold &nbsp;|&nbsp;
+            <span style="color:var(--red);font-weight:700">✗ HIGH</span> = threshold exceeded.
+          </p>
+          
+          <div class="table-scroller-wrap" id="table-scroller-wrap">
+            <div class="table-scroller" id="table-scroller">
+              <div class="sentinel-left"></div>
+              <table class="feature-table" aria-label="Facial asymmetry feature breakdown">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Measured Value</th>
+                    <th>Threshold (≤)</th>
+                    <th>Clinical Basis</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="feature-tbody"></tbody>
+              </table>
+              <div class="sentinel-right"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="result-actions">
+          <a class="btn btn-primary" id="btn-pdf" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            Download PDF Report
+          </a>
+          <button class="btn btn-ghost" id="btn-rescan" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px">
+              <path d="M3 12a9 9 0 1 0 9-9 9.74 9.74 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+            Scan Another Photo
+          </button>
+        </div>
+
+        <p class="disclaimer-note">
+          NeuroScan is a screening tool, not a medical diagnosis.
+          Always consult a licensed healthcare professional for any clinical evaluation or diagnosis.
+          A negative scan does not guarantee the absence of stroke risk.
+        </p>
+      </section>
+
+    </div><!-- /.container -->
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/nav.js"></script>
+  <script>
+    /* ── Config (Synced with LocalStorage) ─────────────────────────── */
+    const host = window.location.hostname || 'localhost';
+    let BACKEND_URL = localStorage.getItem('ns_backend_url') || `http://${host}:8000`;
+    let API_KEY     = localStorage.getItem('ns_api_key') || '';
+
+    /* ── DOM refs ───────────────────────────────────────────────────── */
+    const zone          = document.getElementById('upload-zone');
+    const fileInput     = document.getElementById('file-input');
+    const previewWrap   = document.getElementById('preview-wrap');
+    const previewImg    = document.getElementById('preview-img');
+    const previewClear  = document.getElementById('preview-clear');
+    const btnAnalyze    = document.getElementById('btn-analyze');
+    const loadingState  = document.getElementById('loading-state');
+    const loadingMsg    = document.getElementById('loading-msg');
+    const resultsSection = document.getElementById('results-section');
+    const errorBanner   = document.getElementById('error-banner');
+    const errorText     = document.getElementById('error-text');
+    const errorClose    = document.getElementById('error-close');
+    const btnRescan     = document.getElementById('btn-rescan');
+    const btnPdf        = document.getElementById('btn-pdf');
+
+    let selectedFile = null;
+
+    /* ── File selection ─────────────────────────────────────────────── */
+    function onFileSelected(f) {
+      if (!f || !f.type.startsWith('image/')) {
+        showError('Please select a valid image file (JPG, PNG, WEBP).');
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        showError('File too large. Maximum size is 10 MB.');
+        return;
+      }
+      selectedFile = f;
+      hideError();
+      zone.classList.add('has-file');
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewWrap.classList.add('visible');
+      };
+      reader.readAsDataURL(f);
+
+      btnAnalyze.disabled = false;
+      btnAnalyze.removeAttribute('aria-disabled');
+
+      // Hide old results
+      resultsSection.classList.remove('visible');
+    }
+
+    fileInput.addEventListener('change', e => onFileSelected(e.target.files[0]));
+
+    /* Drag & drop */
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      onFileSelected(e.dataTransfer.files[0]);
+    });
+
+    /* Clear preview */
+    previewClear.addEventListener('click', e => {
+      e.stopPropagation();
+      e.preventDefault();
+      resetUpload();
+    });
+
+    function resetUpload() {
+      selectedFile = null;
+      fileInput.value = '';
+      previewImg.src = '';
+      previewWrap.classList.remove('visible');
+      zone.classList.remove('has-file');
+      btnAnalyze.disabled = true;
+      btnAnalyze.setAttribute('aria-disabled', 'true');
+      hideError();
+      resultsSection.classList.remove('visible');
+      loadingState.classList.remove('visible');
+    }
+
+    /* ── Error Banner Logic ─────────────────────────────────────────── */
+    errorClose.addEventListener('click', hideError);
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorBanner.classList.add('visible');
+      errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function hideError() {
+      errorBanner.classList.remove('visible');
+    }
+
+    /* ── Loading Animation Cycling ───────────────────────────────────── */
+    const loadingSteps = [
+      'Uploading face image to server…',
+      'Detecting face landmarks with MediaPipe Mesh…',
+      'Extracting facial asymmetry metrics…',
+      'Validating parameters against clinical thresholds…',
+      'Running ML classifier for risk prediction…',
+      'Generating clinical PDF report…',
+      'Finalizing analysis results…'
+    ];
+    let loadingInterval = null;
+
+    function startLoading() {
+      loadingState.classList.add('visible');
+      btnAnalyze.disabled = true;
+      
+      let index = 0;
+      loadingMsg.textContent = loadingSteps[index];
+      
+      loadingInterval = setInterval(() => {
+        index = (index + 1) % loadingSteps.length;
+        loadingMsg.textContent = loadingSteps[index];
+      }, 1500);
+    }
+
+    function stopLoading() {
+      loadingState.classList.remove('visible');
+      btnAnalyze.disabled = false;
+      if (loadingInterval) {
+        clearInterval(loadingInterval);
+        loadingInterval = null;
+      }
+    }
+
+    /* ── Analyze ────────────────────────────────────────────────────── */
+    btnAnalyze.addEventListener('click', runAnalysis);
+    btnRescan.addEventListener('click', resetUpload);
+
+    async function runAnalysis() {
+      if (!selectedFile) return;
+
+      hideError();
+      startLoading();
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      // Use the same persistent session_id as the chat page
+      const sessionId = localStorage.getItem('ns_chat_session_id');
+      if (sessionId) {
+        formData.append('session_id', sessionId);
+      }
+
+      const headers = {};
+      if (API_KEY) headers['X-API-Key'] = API_KEY;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/analyze`, {
+          method: 'POST', body: formData, headers,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.detail || `Server error (${res.status})`);
+        }
+
+        stopLoading();
+        localStorage.setItem('ns_last_scan_result', JSON.stringify(data));
+        renderResults(data);
+
+      } catch (err) {
+        stopLoading();
+        showError(err.message || 'Could not connect to the analysis server. Is the backend running?');
+      }
+    }
+
+    /* ── Render results ─────────────────────────────────────────────── */
+    function renderResults(data) {
+      const pred  = data.prediction;
+      const flags = data.feature_flags;
+
+      /* Risk card */
+      const card = document.getElementById('risk-card');
+      card.className = `risk-card ${pred.color_hint}`;
+      document.getElementById('risk-pct').textContent   = `${pred.percentage.toFixed(1)}%`;
+      document.getElementById('risk-label').textContent  = pred.risk_level;
+      document.getElementById('risk-sublabel').textContent = riskSublabel(pred.color_hint);
+
+      /* Images — append backend base URL */
+      document.getElementById('annotated-img').src = `${BACKEND_URL}${data.annotated_image_url}`;
+      document.getElementById('gauge-img').src      = `${BACKEND_URL}${data.gauge_image_url}`;
+
+      /* PDF download URL */
+      btnPdf.href = `${BACKEND_URL}${data.pdf_url}`;
+
+      /* Feature table */
+      const tbody = document.getElementById('feature-tbody');
+      tbody.innerHTML = '';
+      Object.values(flags).forEach(f => {
+        const tr = document.createElement('tr');
+        const statusClass = f.flagged ? 'high' : 'normal';
+        const statusIcon  = f.flagged ? '✗ HIGH' : '✓ Normal';
+        tr.innerHTML = `
+          <td><strong>${f.display_name}</strong></td>
+          <td>${f.value.toFixed(3)}</td>
+          <td>≤ ${f.threshold.toFixed(2)}</td>
+          <td style="font-size:.85rem;color:var(--text-soft)">${f.clinical_basis}</td>
+          <td><span class="status-badge ${statusClass}">${statusIcon}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      resultsSection.classList.add('visible');
+      
+      // Initialize table scroll triggers
+      setTimeout(initTableScrollObservers, 100);
+
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function riskSublabel(hint) {
+      if (hint === 'red')    return 'Significant asymmetry detected — seek medical attention immediately.';
+      if (hint === 'orange') return 'Mild asymmetry detected — consult a healthcare provider.';
+      return 'All features within normal clinical limits.';
+    }
+
+    // Restore last scan result on page load (called after all functions are defined)
+    (function restoreLastResult() {
+      const saved = localStorage.getItem('ns_last_scan_result');
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        renderResults(data);
+      } catch(e) { console.warn('Could not restore last scan result:', e); }
+    })();
+
+    /* ── Safe PDF Downloader ────────────────────────────────────────── */
+    btnPdf.addEventListener('click', async (e) => {
+      const downloadUrl = btnPdf.href;
+      if (!downloadUrl || downloadUrl === '#' || downloadUrl.startsWith('javascript:')) {
+        return;
+      }
+      
+      e.preventDefault();
+      
+      const originalText = btnPdf.innerHTML;
+      btnPdf.innerHTML = `
+        <svg class="spinner-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;animation:spin .85s linear infinite;margin-right:8px">
+          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.2)" stroke-top-color="#fff" />
+        </svg>
+        Downloading PDF...
+      `;
+      btnPdf.classList.add('loading');
+      
+      try {
+        const headers = {};
+        if (API_KEY) headers['X-API-Key'] = API_KEY;
+        
+        const res = await fetch(downloadUrl, { headers });
+        if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+        
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const tempLink = document.createElement('a');
+        tempLink.href = blobUrl;
+        tempLink.download = 'NeuroScan-Report.pdf';
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+      } catch (err) {
+        console.warn('Blob PDF download failed. Falling back to direct window open:', err);
+        window.open(downloadUrl, '_blank');
+      } finally {
+        btnPdf.innerHTML = originalText;
+        btnPdf.classList.remove('loading');
+      }
+    });
+
+    /* ── Table Horizontal Scroll Hint Observers ─────────────────────── */
+    function initTableScrollObservers() {
+      const scroller = document.getElementById('table-scroller');
+      const scrollerWrap = document.getElementById('table-scroller-wrap');
+      const sentinelLeft = document.querySelector('.sentinel-left');
+      const sentinelRight = document.querySelector('.sentinel-right');
+      
+      if (!scroller || !scrollerWrap || !sentinelLeft || !sentinelRight) return;
+      
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.target === sentinelLeft) {
+              scrollerWrap.classList.toggle('can-scroll-left', !entry.isIntersecting);
+            }
+            if (entry.target === sentinelRight) {
+              scrollerWrap.classList.toggle('can-scroll-right', !entry.isIntersecting);
+            }
+          });
+        }, { root: scroller, threshold: 0.1 });
+        
+        observer.observe(sentinelLeft);
+        observer.observe(sentinelRight);
+      }
+    }
+  </script>
+</body>
+</html>

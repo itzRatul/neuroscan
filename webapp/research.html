@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research &amp; Methodology — NeuroScan</title>
+  <meta name="description" content="Deep dive into the neural networks, landmark geometry, synthetic training sets, and clinical papers powering NeuroScan stroke screening." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+
+    /* ── Clinical Logic Grid & Cards ──────────────────────────────────── */
+    .clinical-intro-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    .rationale-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .padded-card {
+      padding: 2.5rem;
+    }
+
+
+    /* ── Guided Protocol Steps ───────────────────────────────────────── */
+    .protocol-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+    }
+    .step-card {
+      padding: 1.75rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .step-card-num {
+      font-family: var(--mono);
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: rgba(31, 111, 235, 0.09);
+      position: absolute;
+      top: -8px; right: 12px;
+      line-height: 1;
+    }
+    .step-card-icon {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: rgba(31, 111, 235, 0.08);
+      color: #1f6feb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 0 15px rgba(31, 111, 235, 0.05);
+      transition: all 0.3s;
+    }
+    .step-card:hover .step-card-icon {
+      background: #1f6feb;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(31, 111, 235, 0.3);
+      transform: scale(1.1);
+    }
+    .step-card h4 {
+      font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text);
+    }
+    .step-card p {
+      font-size: 0.8rem; color: var(--text-soft); line-height: 1.45;
+    }
+
+    /* ── Congress Timeline ────────────────────────────────────────────── */
+    .timeline-wrapper {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+    .timeline-wrapper::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      background: var(--border-strong);
+      top: 0; bottom: 0;
+      left: 50%;
+      margin-left: -1px;
+      z-index: 1;
+    }
+    .t-item {
+      width: 50%;
+      padding: 15px 40px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 3;
+    }
+    .t-item::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 4px solid #3da853;
+      top: 32px;
+      right: -11px;
+      z-index: 4;
+    }
+    .t-item.right::after {
+      left: -11px; right: auto;
+      border-color: #0f294a;
+    }
+    .t-item.left { left: 0; text-align: right; }
+    .t-item.right { left: 50%; text-align: left; }
+    
+    .t-card {
+      padding: 1.75rem;
+      border-radius: 16px;
+      color: #ffffff;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      position: relative;
+      text-align: left;
+      transition: transform 0.2s;
+    }
+    .t-card:hover {
+      transform: translateY(-2px);
+    }
+    .t-card.green-bg {
+      background: #3da853;
+      border: 1px solid #2e8240;
+    }
+    .t-card.navy-bg {
+      background: #0f294a;
+      border: 1px solid #0b203a;
+    }
+    .t-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      margin-bottom: 0.85rem;
+      font-family: var(--mono);
+    }
+    .t-card h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      line-height: 1.35;
+    }
+    .t-card-author {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-style: italic;
+      margin-bottom: 0.75rem;
+    }
+    .t-card-desc {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+    .t-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: underline;
+      transition: opacity 0.15s;
+    }
+    .t-card-link:hover {
+      opacity: 0.8;
+    }
+    .t-card-link svg {
+      width: 14px;
+      height: 14px;
+    }
+    .t-card-icon {
+      position: absolute;
+      top: 1.75rem;
+      right: 1.75rem;
+      width: 24px;
+      height: 24px;
+      opacity: 0.25;
+      color: #ffffff;
+    }
+
+
+
+    /* Data Separation Cards */
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .data-box {
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+    }
+    .data-box-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      margin-bottom: 1rem;
+    }
+    .data-box-badge.train { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+    .data-box-badge.test  { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+    .data-box-badge.calib { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    
+    .data-box h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
+    .data-box p { font-size: 0.85rem; color: var(--text-soft); line-height: 1.5; margin-bottom: 1rem; }
+
+    /* ML Pipeline Flow */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .pipeline-node {
+      padding: 1.25rem 1rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+    }
+    .pipeline-node strong {
+      font-family: var(--mono);
+      font-size: 1.5rem;
+      color: var(--brand);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .pipeline-node h4 { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.35rem; }
+    .pipeline-node p { font-size: 0.725rem; color: var(--text-soft); line-height: 1.35; }
+
+    /* ── Visualizations Display styles ── */
+    .visualizations-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .visualizations-subgrid {
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 680px;
+      margin: 2.5rem auto 0;
+    }
+    .vis-card {
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+    }
+    .vis-card h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      border-left: 3px solid var(--brand);
+      padding-left: 10px;
+    }
+    .vis-img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+    }
+    .vis-card p {
+      font-size: 0.825rem;
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+
+    /* Technology Details / Landmark interactive wireframe */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    
+    .tech-left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .landmark-table-container {
+      width: 100%;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: inset 0 0 10px rgba(15, 23, 42, 0.02);
+    }
+    
+    /* Scrollbars for technical tables */
+    .landmark-table-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .landmark-table-container::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    .landmark-table-container::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.3);
+      border-radius: 3px;
+    }
+    .landmark-table-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(59, 130, 246, 0.5);
+    }
+
+    .landmark-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    .landmark-table th {
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 12px 16px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 1px solid var(--border);
+    }
+    .landmark-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-soft);
+      transition: background 0.15s, color 0.15s;
+    }
+    .landmark-table tbody tr {
+      cursor: pointer;
+    }
+    .landmark-table tbody tr:hover td {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+    .landmark-table tbody tr.active-row td {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .landmark-table tr:last-child td { border-bottom: none; }
+    
+    /* Diagram card side */
+    .landmark-diagram-card {
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .diagram-svg-container {
+      width: 100%;
+      max-width: 220px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(15, 23, 42, 0.02);
+    }
+    .landmark-dig-svg {
+      width: 100%;
+      height: auto;
+    }
+    
+    .diagram-node {
+      fill: rgba(59, 130, 246, 0.2);
+      stroke: var(--brand);
+      stroke-width: 1.5;
+      transition: fill 0.2s, stroke 0.2s, r 0.2s;
+    }
+    .diagram-node.active-highlight {
+      fill: #10b981 !important;
+      stroke: #ffffff !important;
+      stroke-width: 2 !important;
+      r: 6px !important;
+      filter: drop-shadow(0 0 6px #10b981);
+    }
+    .diagram-line {
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 0.8;
+      transition: stroke 0.2s;
+    }
+    .diagram-line.active-highlight {
+      stroke: rgba(59, 130, 246, 0.4);
+      stroke-width: 1.2;
+    }
+    
+    .diagram-tooltip {
+      font-family: var(--mono);
+      font-size: 0.725rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-align: center;
+      min-height: 20px;
+    }
+
+    .stack-and-annotation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    .annotation-box {
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+    }
+
+    .stack-box {
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02);
+    }
+    .stack-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stack-row:last-child { border-bottom: none; }
+    .stack-tag {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    /* ── Responsive Styling ────────────────────────────── */
+    @media (max-width: 900px) {
+      .research-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .hero-neural-visual {
+        max-width: 250px;
+      }
+      .clinical-intro-grid, .rationale-grid, .tech-grid, .simulator-layout, .visualizations-grid, .stack-and-annotation-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .protocol-steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .data-grid, .pipeline-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .telemetry-card.full-row {
+        grid-column: auto;
+      }
+      .telemetry-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 480px) {
+      .protocol-steps {
+        grid-template-columns: 1fr;
+      }
+      .step-card-num {
+        font-size: 2.25rem;
+      }
+      .features-telemetry-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .timeline-wrapper::after, .timeline-progress-line {
+        left: 20px;
+      }
+      .t-item {
+        width: 100%;
+        padding-left: 42px;
+        padding-right: 10px;
+        padding-bottom: 20px;
+      }
+      .t-item.left {
+        left: 0;
+        text-align: left;
+      }
+      .t-item.right {
+        left: 0;
+        text-align: left;
+      }
+      .t-item::after {
+        left: 14px;
+        right: auto;
+      }
+      .t-item.left::after, .t-item.right::after {
+        left: 14px;
+      }
+      .research-title {
+        font-size: 2.25rem;
+      }
+      .padded-card {
+        padding: 1.5rem !important;
+      }
+      .data-box, .vis-card, .annotation-box, .stack-box, .t-card, .landmark-diagram-card {
+        padding: 1.25rem;
+      }
+      .cta-buttons-container {
+        flex-direction: column;
+        align-items: stretch !important;
+      }
+      .cta-buttons-container a {
+        text-align: center;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+
+    <!-- ══ NEURAL HERO ══ -->
+    <section class="research-hero" style="text-align: center; max-width: 800px; margin: 0 auto; padding-top: 2rem;">
+      <div class="container">
+        <div>
+          <div class="page-hero-breadcrumb" style="color:#64748b; font-family:var(--mono); font-size:12px; margin-bottom:1rem; justify-content: center; display: flex;">
+            <a href="index.html" style="color:#94a3b8;">Home</a>
+            <span class="crumb-sep" style="margin: 0 4px;">/</span>
+            <span style="color:#3b82f6;">Research &amp; Learn</span>
+          </div>
+          <h1 class="research-title" style="margin: 0 auto;">Research &amp;<br/><span class="gradient-text">Clinical Methodology</span></h1>
+          <p class="research-lead" style="margin: 1.5rem auto 0;">
+            Automated stroke pre-diagnostic screening driven by real-time computer vision and machine learning. GROUNDED in clinical literature, validated prehospital scales, and a synthetic clinical dataset.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 1: CLINICAL RATIONALE & SIMULATOR ══ -->
+    <section class="r-section">
+      <div class="container">
+        <div class="section-head-center">
+          <span class="section-kicker">Clinical Rationale</span>
+          <h2 class="r-section-title">Clinical Screening &amp; <span>Early Warning</span></h2>
+          <p class="r-section-subtitle">Bridging the gap in prehospital emergency settings with objective, instant computer-vision assessments.</p>
+        </div>
+
+        <!-- Clinical Introduction Card -->
+        <div class="glass-card padded-card" style="margin-bottom: 3.5rem; border-left: 5px solid var(--brand); box-shadow: var(--shadow-sm);">
+          <div class="clinical-intro-grid">
+            <div>
+              <span class="section-kicker" style="color:var(--brand); font-weight:700; margin-bottom:0.5rem; display:block;">Stroke Early Detection &amp; The Golden Hour</span>
+              <h3 style="font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; line-height: 1.35;">
+                Every Minute Matters: Why Early Screening Saves Lives
+              </h3>
+              <p style="font-size: 0.95rem; color: var(--text-soft); line-height: 1.65; margin-bottom: 1.25rem;">
+                When a stroke occurs, every single second counts. Restoring blood flow and delivering medical treatment within the critical <strong>"Golden Hour"</strong> (the first few hours) can significantly prevent permanent brain damage and completely restore patient health. 
+              </p>
+              <p style="font-size: 0.95rem; color: var(--text-soft); line-height: 1.65;">
+                However, due to a lack of proper medical knowledge, people often fail to notice subtle early signs of a stroke (such as facial droop) before it is too late. NeuroScan was designed to bridge this gap, providing a fast, accessible, browser-based screening tool that flags early facial motor deficit markers immediately.
+              </p>
+            </div>
+            
+            <!-- Bangla Translation Callout Panel -->
+            <div style="background: var(--brand-soft); border: 1px dashed var(--brand); border-radius: 14px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-dark); margin-bottom: 0.75rem; display:flex; align-items:center; gap:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:var(--brand);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                সহজ বাংলায় বার্তা
+              </h4>
+              <p style="font-size: 0.85rem; color: var(--text); line-height: 1.6; font-weight: 500;">
+                যদি কোনো ব্যক্তি স্ট্রোকে আক্রান্ত হন, তবে অল্প সময়ের মধ্যে (Golden Hour) দ্রুত মেডিকেল চিকিৎসা দেওয়া গেলে তাকে পুরোপুরি সুস্থ করা সম্ভব। 
+              </p>
+              <p style="font-size: 0.85rem; color: var(--text-soft); line-height: 1.6; margin-top: 0.75rem; font-weight: 500;">
+                কিন্তু সাধারণ মানুষের সঠিক চিকিৎসা জ্ঞান না থাকার কারণে অনেকেই বুঝতে পারেন না যে স্ট্রোকে আক্রান্ত হওয়ার কোনো সম্ভাবনা তৈরি হয়েছে কি না। আর এই সমস্যার সমাধান করতেই আমাদের এই সিস্টেমে সহজ এবং দ্রুত স্ক্রিনিংয়ের ব্যবস্থা করা হয়েছে।
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 2: TIMELINE OF SCIENTIFIC EVIDENCE (Congress Timeline Design) ══ -->
+    <section class="r-section" id="timeline">
+      <div class="container">
+        <div class="section-head-center">
+          <span class="section-kicker">Clinical Publications</span>
+          <h2 class="r-section-title">Timeline of <span>Scientific Evidence</span></h2>
+          <p class="r-section-subtitle">Chronological research grounding the validity and clinical necessity of computer-vision stroke screening.</p>
+        </div>
+
+        <div class="timeline-wrapper">
+          <!-- Item 1: Cincinnati CPSS -->
+          <div class="t-item left">
+            <div class="t-card green-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="t-card-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <div class="t-card-badge">1999 — Protocol Basis</div>
+              <h3>Cincinnati Prehospital Stroke Scale (CPSS)</h3>
+              <div class="t-card-author">Kothari, R. U. et al. · Annals of Emergency Medicine</div>
+              <p class="t-card-desc">
+                Clinically establishes the standard prehospital stroke checklist. Proves facial droop/droop asymmetry carries twice the diagnostic weight of eye signs.
+              </p>
+              <a href="https://doi.org/10.1016/S0196-0644(99)70299-4" target="_blank" rel="noopener" class="t-card-link">
+                View DOI &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 2: Taufique Math -->
+          <div class="t-item right">
+            <div class="t-card navy-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="t-card-icon"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div class="t-card-badge">2021 — Mathematics</div>
+              <h3>Asymmetry Metric Formulation</h3>
+              <div class="t-card-author">Taufique, A. &amp; Savakis, A. · arXiv:2103.11059</div>
+              <p class="t-card-desc">
+                Formulates left-right landmark euclidean distance ratios for mouth, eyebrow, and eyelid features. Directly adapted into NeuroScan's core geometry library.
+              </p>
+              <a href="https://arxiv.org/pdf/2103.11059" target="_blank" rel="noopener" class="t-card-link">
+                View Preprint &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 3: Herpich Clinical Need -->
+          <div class="t-item left">
+            <div class="t-card green-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="t-card-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <div class="t-card-badge">2022 — Medical Necessity</div>
+              <h3>Human vs. ML Facial Weakness</h3>
+              <div class="t-card-author">Herpich et al. · Frontiers in Neurology</div>
+              <p class="t-card-desc">
+                Reveals human paramedics fail to detect facial weakness in 17% of acute stroke cases, highlighting the need for objective computer-aided ML tools.
+              </p>
+              <a href="https://www.frontiersin.org/journals/neurology/articles/10.3389/fneur.2022.878282/full" target="_blank" rel="noopener" class="t-card-link">
+                View Publication &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 4: Oliveira Face Graphs -->
+          <div class="t-item right">
+            <div class="t-card navy-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="t-card-icon"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <div class="t-card-badge">2023 — Face Graphs</div>
+              <h3>Facial Point Graphs for Stroke</h3>
+              <div class="t-card-author">Oliveira et al. · ResearchGate</div>
+              <p class="t-card-desc">
+                Demonstrates that coordinate mappings on landmark deltas bypass variables like skin tone and poor lighting, preventing demographics-based bias in AI detection.
+              </p>
+              <a href="https://www.researchgate.net/publication/375956719_Facial_Point_Graphs_for_Stroke_Identification" target="_blank" rel="noopener" class="t-card-link">
+                ResearchGate &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- Item 5: Frontera 2026 -->
+          <div class="t-item left">
+            <div class="t-card green-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="t-card-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <div class="t-card-badge">2026 — Systematic Review</div>
+              <h3>Deep Learning in FER Diagnosis</h3>
+              <div class="t-card-author">Frontera et al. · Frontiers in Neurology</div>
+              <p class="t-card-desc">
+                Surveys stroke facial recognition models. Notes that Toronto Neuroface (TNF) contains only 14 patients, proving why synthetic data training is mathematically necessary.
+              </p>
+              <a href="https://www.frontiersin.org/journals/neurology/articles/10.3389/fneur.2026.1744257/full" target="_blank" rel="noopener" class="t-card-link">
+                View Publication &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 3: SYNTHETIC TRAINING & REAL-WORLD VALIDATION ══ -->
+    <section class="r-section r-section-darker" id="datasets">
+      <div class="container">
+        <div class="section-head-center">
+          <span class="section-kicker">Data Strategy</span>
+          <h2 class="r-section-title">Synthetic Training &amp; <span>Real Validation</span></h2>
+          <p class="r-section-subtitle">How we bypass regulatory clinical image shortages using clinical simulation and real-world testing sets.</p>
+        </div>
+
+        <div class="data-grid">
+          <div class="glass-card data-box">
+            <span class="data-box-badge train">Training Set</span>
+            <h3>Clinically-Inspired Synthetic Data (N=3,000)</h3>
+            <p>
+              Due to HIPAA privacy constraints and a severe scarcity of public patient facial datasets (for instance, the Toronto Neuroface dataset contains only 14 patients), training deep/statistical classifiers directly on raw patient photos is clinically and statistically limited. We generated 3,000 synthetic patient vectors using range distributions mapped from Cincinnati Prehospital Stroke Scale (CPSS) criteria and Sunnybrook Facial Grading metrics to ensure robust generalizability.
+            </p>
+            <span style="font-size:0.8rem; font-family:var(--mono); color:#10b981; font-weight:700;">100% HIPAA &amp; Privacy Compliant</span>
+          </div>
+
+          <div class="glass-card data-box">
+            <span class="data-box-badge test">Testing Set</span>
+            <h3>Annotated Stroke Dataset (Kaggle)</h3>
+            <p>
+              Consists of 2,490 stroke and 5,000 normal real-world images curated by Abdussalam Elhanashy. Used strictly as the test set to evaluate real-world classifier generalization, validating that the models trained on synthetic vectors translate accurately to real patient photo landmarks.
+            </p>
+            <a href="https://www.kaggle.com/datasets/abdussalamelhanashy/annotated-facial-images-for-stroke-classification" target="_blank" rel="noopener" class="t-card-link">Kaggle Dataset →</a>
+          </div>
+
+          <div class="glass-card data-box">
+            <span class="data-box-badge calib">Calibration Set</span>
+            <h3>Facial Droop &amp; Palsy (Kaggle)</h3>
+            <p>
+              Consists of 1,024 images of confirmed facial palsy (curated by Mehta). Used to calibrate the baseline manual MediaPipe excursion ratios (e.g., eye-close threshold 0.35, eye-open 1.25) to isolate neurological palsy features from natural asymmetries.
+            </p>
+            <a href="https://www.kaggle.com/datasets/kaitavmehta/facial-droop-and-facial-paralysis-image" target="_blank" rel="noopener" class="t-card-link">Kaggle Dataset →</a>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 5rem; font-weight: 800; color: var(--text); text-align: center;">How stroke_model.pkl is Built</h3>
+        <div class="pipeline-grid">
+          <div class="glass-card pipeline-node">
+            <strong>01</strong>
+            <h4>Simulate</h4>
+            <p>Simulate 3,000 patient parameters based on CPSS &amp; Sunnybrook grading.</p>
+          </div>
+          <div class="glass-card pipeline-node">
+            <strong>02</strong>
+            <h4>Extract</h4>
+            <p>Extract 6 key landmark asymmetry feature vectors.</p>
+          </div>
+          <div class="glass-card pipeline-node">
+            <strong>03</strong>
+            <h4>Scale</h4>
+            <p>Apply StandardScaler and export as <code>stroke_scaler.pkl</code>.</p>
+          </div>
+          <div class="glass-card pipeline-node">
+            <strong>04</strong>
+            <h4>Train</h4>
+            <p>Fit Random Forest and XGBoost classifiers on synthetic coordinates.</p>
+          </div>
+          <div class="glass-card pipeline-node">
+            <strong>05</strong>
+            <h4>Test</h4>
+            <p>Test models against Elhanashy's Kaggle images; export <code>stroke_model.pkl</code>.</p>
+          </div>
+        </div>
+
+        <!-- ══ ADDED VISUALIZATIONS SECTION ══ -->
+        <h3 style="margin-top: 5rem; font-weight: 800; color: var(--text); text-align: center;">Model Performance &amp; Feature Distribution</h3>
+        <p style="text-align: center; color: var(--text-soft); max-width: 600px; margin: 0.5rem auto 2.5rem; font-size: 0.95rem;">
+          Actual data plots extracted from the training notebook showcasing classifier metrics and synthetic feature separation.
+        </p>
+
+        <div class="visualizations-grid">
+          <div class="glass-card vis-card">
+            <h4>Feature Distributions (Normal vs. Stroke)</h4>
+            <img src="assets/eda_distributions.png" alt="Feature Distributions Plot" class="vis-img" />
+            <p>
+              Probability density distributions of key facial asymmetry parameters. Yellow dashed lines denote clinical thresholds calibrated using synthetic constraints and facial palsy datasets.
+            </p>
+          </div>
+          <div class="glass-card vis-card">
+            <h4>Classifier Evaluation (Confusion Matrix &amp; ROC)</h4>
+            <img src="assets/model_evaluation.png" alt="Classifier Evaluation Matrix and Curves" class="vis-img" />
+            <p>
+              Validation performance of Random Forest and XGBoost models on the Kaggle real-world validation set. High sensitivity (Recall) is prioritized to prevent missed stroke presentations.
+            </p>
+          </div>
+        </div>
+
+        <div class="visualizations-subgrid">
+          <div class="glass-card vis-card">
+            <h4>Facial Feature Importance Ranking</h4>
+            <img src="assets/feature_importance.png" alt="ML Classifier Feature Importance Chart" class="vis-img" style="max-height: 280px; width: auto; margin: 0 auto;" />
+            <p style="text-align: center;">
+              Feature importance weightings showing that **mouth corner drop** (FAST "F" indicator) and nasolabial fold asymmetry hold the highest predictive weight in classifying acute hemiparesis.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 4: THE 16-SECOND TEST PROTOCOL ══ -->
+    <section class="r-section">
+      <div class="container">
+        <div class="section-head-center">
+          <span class="section-kicker">Five-Phase Screening</span>
+          <h2 class="r-section-title">The Guided <span>Symmetry Protocol</span></h2>
+          <p class="r-section-subtitle">Every webcam test evaluates specific motor responses mapping to Cranial Nerve VII (Facial Nerve) clinical checklists.</p>
+        </div>
+
+        <div class="protocol-steps">
+          <div class="glass-card step-card">
+            <div class="step-card-num">01</div>
+            <div class="step-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+            </div>
+            <h4>Resting calibration</h4>
+            <p>Maps standard neutral positions of mouth and eyes to construct the reference coordinate matrix.</p>
+          </div>
+
+          <div class="glass-card step-card" style="border-color: rgba(59, 130, 246, 0.25);">
+            <div class="step-card-num">02</div>
+            <div class="step-card-icon" style="color:var(--brand); background:var(--brand-soft);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M18 10h-1.25A3.75 3.75 0 0 1 13 6.25V5"/><path d="M6 10h1.25A3.75 3.75 0 0 0 11 6.25V5"/><path d="M12 2v3"/><path d="M12 22v-3"/><path d="M12 11q-3 3-3 6.5t3 3.5q3 0 3-3.5t-3-6.5Z"/></svg>
+            </div>
+            <h4>Active smile</h4>
+            <p>Triggers mouth-droop check, evaluating left/right zygomaticus major movement ratios.</p>
+          </div>
+
+          <div class="glass-card step-card">
+            <div class="step-card-num">03</div>
+            <div class="step-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h4>Eye closure</h4>
+            <p>Assesses eyelid closure ratios. Checks for lagophthalmos or asymmetrical eyelid folds.</p>
+          </div>
+
+          <div class="glass-card step-card" style="border-color: rgba(59, 130, 246, 0.25);">
+            <div class="step-card-num">04</div>
+            <div class="step-card-icon" style="color:var(--brand); background:var(--brand-soft);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M3 7q3 3 9 3t9-3"/><path d="M12 10v12"/></svg>
+            </div>
+            <h4>Eye opening</h4>
+            <p>Evaluates frontalis muscle elevation during wide opening to detect subtle upper eyebrow drop.</p>
+          </div>
+
+          <div class="glass-card step-card">
+            <div class="step-card-num">05</div>
+            <div class="step-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><circle cx="12" cy="5" r="3"/></svg>
+            </div>
+            <h4>Verbal smile</h4>
+            <p>Integrates voluntary smile execution with voice activation to compute final asymmetry probability.</p>
+          </div>
+        </div>
+
+        <!-- Clinical Rationale: The 16s Active Test Protocol -->
+        <div class="glass-card padded-card" style="margin-top: 3.5rem; border-left: 5px solid var(--brand); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.02);">
+          <div class="rationale-grid">
+            <div>
+              <span class="section-kicker" style="color:var(--brand); font-weight:700; margin-bottom:0.5rem; display:block;">Conduction Dynamics</span>
+              <h3 style="font-size: 1.45rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; line-height: 1.35;">
+                Why a 16-Second Active Stress Test?
+              </h3>
+              <p style="font-size: 0.925rem; color: var(--text-soft); line-height: 1.6; margin-bottom: 1rem;">
+                Traditional stroke screens rely on simple visual inspection of a resting face. However, mild ischemic events affecting the motor pathway of <strong>Cranial Nerve VII (Facial Nerve)</strong> may produce no visible asymmetry when facial muscles are relaxed. Resting muscle tone can remain deceptively symmetric.
+              </p>
+              <p style="font-size: 0.925rem; color: var(--text-soft); line-height: 1.6;">
+                By prompting the patient through a rapid, 16-second sequence of active facial contractions (voluntary resting calibration, forced smile, tight eyelid closure, and deep brow elevation), the protocol functions as a <strong>neuromotor stress test</strong>. It forces active corticobulbar nerve transmission, instantly exposing subtle excursion latency and movement discrepancies (Δ) that are completely invisible at rest.
+              </p>
+            </div>
+            
+            <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem;">
+              <h4 style="font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; display:flex; align-items:center; gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px;color:var(--brand);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Physiological Mechanics (Cranial Nerve VII)
+              </h4>
+              <ul style="font-size: 0.875rem; color: var(--text-soft); line-height: 1.6; padding-left: 1.25rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 8px;">
+                <li>
+                  <strong>Pathway Challenge:</strong> Voluntary movements test both the upper and lower motor pathways, stressing zygomaticus major and frontalis contractions.
+                </li>
+                <li>
+                  <strong>Excursion Delta (Δ):</strong> Instead of static absolute measurements, the system calculates the delta between left/right coordinates during max dynamic displacement.
+                </li>
+                <li>
+                  <strong>Clinical Reference:</strong> Grounded in the Herpich et al. (2022) clinical findings showing automated computer-vision analysis identifies subtle facial paretic deficits that human responders miss in 17% of emergency cases.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 5: TECHNOLOGY DETAILS & INTERACTIVE TABLE ══ -->
+    <section class="r-section r-section-darker" id="technology">
+      <div class="container">
+        <div class="section-head-center">
+          <span class="section-kicker">Core Tech</span>
+          <h2 class="r-section-title">Landmark Mapping &amp; <span>API Stack</span></h2>
+          <p class="r-section-subtitle">Real-time landmark coordinates extracted from Google MediaPipe and analyzed securely on our FastAPI server.</p>
+        </div>
+
+        <div class="tech-grid">
+          <!-- Interactive Table Column -->
+          <div class="tech-left-col">
+            <h3 style="font-weight:700; color:var(--text);">Landmark Indices Mapped</h3>
+            <p style="font-size:0.9rem; color:var(--text-soft); line-height:1.6;">
+              Hover over the landmark coordinates below to isolate and view their spatial location on the facial mesh.
+            </p>
+            <div class="landmark-table-container">
+              <table class="landmark-table" id="indices-table">
+                <thead>
+                  <tr><th>Feature Mapped</th><th>Index</th><th>Facial Landmark Details</th></tr>
+                </thead>
+                <tbody>
+                  <tr data-node="nose"><td><code>NOSE_TIP</code></td><td>1</td><td>Central reference landmark coordinate</td></tr>
+                  <tr data-node="forehead"><td><code>FOREHEAD</code></td><td>10</td><td>Upper face midline boundary coordinate</td></tr>
+                  <tr data-node="chin"><td><code>CHIN</code></td><td>152</td><td>Lower jaw midline boundary coordinate</td></tr>
+                  <tr data-node="mouth-l"><td><code>MOUTH_LEFT</code></td><td>61</td><td>Left mouth corner (zygomaticus major)</td></tr>
+                  <tr data-node="mouth-r"><td><code>MOUTH_RIGHT</code></td><td>291</td><td>Right mouth corner (zygomaticus major)</td></tr>
+                  <tr data-node="eye-lt"><td><code>LEFT_EYE_TOP</code></td><td>159</td><td>Left upper eyelid boundary index</td></tr>
+                  <tr data-node="eye-lb"><td><code>LEFT_EYE_BOTTOM</code></td><td>145</td><td>Left lower eyelid boundary index</td></tr>
+                  <tr data-node="eye-rt"><td><code>RIGHT_EYE_TOP</code></td><td>386</td><td>Right upper eyelid boundary index</td></tr>
+                  <tr data-node="eye-rb"><td><code>RIGHT_EYE_BOTTOM</code></td><td>374</td><td>Right lower eyelid boundary index</td></tr>
+                  <tr data-node="brow-l"><td><code>LEFT_EYEBROW</code></td><td>70</td><td>Left frontalis muscle elevation reference</td></tr>
+                  <tr data-node="brow-r"><td><code>RIGHT_EYEBROW</code></td><td>300</td><td>Right frontalis muscle elevation reference</td></tr>
+                  <tr data-node="naso-l"><td><code>LEFT_NASOLABIAL</code></td><td>92</td><td>Left nasolabial fold coordinate (cheek)</td></tr>
+                  <tr data-node="naso-r"><td><code>RIGHT_NASOLABIAL</code></td><td>322</td><td>Right nasolabial fold coordinate (cheek)</td></tr>
+                  <tr data-node="face-l"><td><code>LEFT_FACE_EDGE</code></td><td>234</td><td>Left lateral head boundary reference</td></tr>
+                  <tr data-node="face-r"><td><code>RIGHT_FACE_EDGE</code></td><td>454</td><td>Right lateral head boundary reference</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Interactive Diagram Column -->
+          <div class="landmark-diagram-card glass-card">
+            <span class="sim-label">Interactive Locator</span>
+            <div class="diagram-svg-container">
+              <svg viewBox="0 0 240 280" class="landmark-dig-svg" id="tech-face-svg">
+                <!-- Face wireframe contour -->
+                <path d="M 120 25 C 60 25, 25 60, 25 125 C 25 190, 60 245, 120 270 C 180 245, 215 190, 215 125 C 215 60, 180 25, 120 25 Z" 
+                      fill="rgba(59, 130, 246, 0.01)" stroke="var(--border)" stroke-width="1.2" />
+                
+                <!-- Center vertical axis -->
+                <line x1="120" y1="25" x2="120" y2="270" stroke="rgba(255, 255, 255, 0.05)" stroke-dasharray="3,3" />
+
+                <!-- Wireframe structural mesh lines -->
+                <g class="diagram-mesh-lines">
+                  <line id="line-forehead-nose" x1="120" y1="40" x2="120" y2="160" class="diagram-line" />
+                  <line id="line-nose-chin" x1="120" y1="160" x2="120" y2="245" class="diagram-line" />
+                  
+                  <!-- Left structural lines -->
+                  <line id="line-brow-eye-l" x1="75" y1="90" x2="80" y2="110" class="diagram-line" />
+                  <line id="line-eye-naso-l" x1="80" y1="125" x2="90" y2="185" class="diagram-line" />
+                  <line id="line-naso-mouth-l" x1="90" y1="185" x2="95" y2="215" class="diagram-line" />
+                  <line id="line-nose-mouth-l" x1="120" y1="160" x2="95" y2="215" class="diagram-line" />
+                  
+                  <!-- Right structural lines -->
+                  <line id="line-brow-eye-r" x1="165" y1="90" x2="160" y2="110" class="diagram-line" />
+                  <line id="line-eye-naso-r" x1="160" y1="125" x2="150" y2="185" class="diagram-line" />
+                  <line id="line-naso-mouth-r" x1="150" y1="185" x2="145" y2="215" class="diagram-line" />
+                  <line id="line-nose-mouth-r" x1="120" y1="160" x2="145" y2="215" class="diagram-line" />
+                  
+                  <!-- Mouth contour structural -->
+                  <line id="line-mouth-lr" x1="95" y1="215" x2="145" y2="215" class="diagram-line" />
+                  
+                  <!-- Lateral connections -->
+                  <line id="line-edge-l" x1="45" y1="140" x2="95" y2="215" class="diagram-line" />
+                  <line id="line-edge-r" x1="195" y1="140" x2="145" y2="215" class="diagram-line" />
+                </g>
+
+                <!-- Mesh Coordinate Nodes -->
+                <g>
+                  <!-- Nose (1) -->
+                  <circle id="d-node-nose" cx="120" cy="160" r="4.5" class="diagram-node" />
+                  <!-- Forehead (10) -->
+                  <circle id="d-node-forehead" cx="120" cy="40" r="4" class="diagram-node" />
+                  <!-- Chin (152) -->
+                  <circle id="d-node-chin" cx="120" cy="245" r="4" class="diagram-node" />
+                  
+                  <!-- Left mouth (61) / Right mouth (291) -->
+                  <circle id="d-node-mouth-l" cx="95" cy="215" r="5" class="diagram-node" />
+                  <circle id="d-node-mouth-r" cx="145" cy="215" r="5" class="diagram-node" />
+                  
+                  <!-- Eyes -->
+                  <circle id="d-node-eye-lt" cx="80" cy="110" r="3.5" class="diagram-node" />
+                  <circle id="d-node-eye-lb" cx="80" cy="125" r="3.5" class="diagram-node" />
+                  <circle id="d-node-eye-rt" cx="160" cy="110" r="3.5" class="diagram-node" />
+                  <circle id="d-node-eye-rb" cx="160" cy="125" r="3.5" class="diagram-node" />
+                  
+                  <!-- Brows -->
+                  <circle id="d-node-brow-l" cx="75" cy="90" r="4" class="diagram-node" />
+                  <circle id="d-node-brow-r" cx="165" cy="90" r="4" class="diagram-node" />
+                  
+                  <!-- Naso folds -->
+                  <circle id="d-node-naso-l" cx="90" cy="185" r="4" class="diagram-node" />
+                  <circle id="d-node-naso-r" cx="150" cy="185" r="4" class="diagram-node" />
+                  
+                  <!-- Face edges -->
+                  <circle id="d-node-face-l" cx="45" cy="140" r="4.5" class="diagram-node" />
+                  <circle id="d-node-face-r" cx="195" cy="140" r="4.5" class="diagram-node" />
+                </g>
+              </svg>
+            </div>
+            <div class="diagram-tooltip" id="diagram-hint">Hover a row to highlight coordinates</div>
+          </div>
+        </div>
+
+        <!-- ══ COMBINED ARCHITECTURE & COMPUTER VISION ANNOTATION GRID ══ -->
+        <div class="stack-and-annotation-grid">
+          <div class="glass-card annotation-box">
+            <h3 style="margin-bottom:1.25rem; font-weight:700; color:var(--text);">Computer Vision Mapping</h3>
+            <img src="assets/stroke_annotated.png" alt="MediaPipe Face Mesh Stroke Annotation" class="vis-img" />
+            <p style="font-size:0.825rem; color:var(--text-soft); line-height:1.55; margin-top:0.75rem;">
+              MediaPipe Face Mesh extracting spatial coordinates on a patient face, highlighting asymmetry vectors on mouth and eyelid contours.
+            </p>
+          </div>
+          
+          <div class="glass-card stack-box" style="margin-top: 0;">
+            <h3 style="margin-bottom:1.25rem; font-weight:700; color:var(--text);">System Architecture Stack</h3>
+            <div class="stack-list">
+              <div class="stack-row"><span class="stack-tag">Frontend</span><span>HTML5 · CSS3 · Vanilla JS</span></div>
+              <div class="stack-row"><span class="stack-tag">Vision Model</span><span>Google MediaPipe Face Mesh</span></div>
+              <div class="stack-row"><span class="stack-tag">API Server</span><span>Python FastAPI (CORS enabled)</span></div>
+              <div class="stack-row"><span class="stack-tag">ML Inference</span><span>Scikit-Learn · XGBoost (stroke_model.pkl)</span></div>
+              <div class="stack-row"><span class="stack-tag">Charts</span><span>Matplotlib (Gauge) · Chart.js</span></div>
+              <div class="stack-row"><span class="stack-tag">PDF Generation</span><span>ReportLab (Clinical PDF builder)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA ══ -->
+    <section class="section-tight" style="padding-bottom: 90px;">
+      <div class="container">
+        <div class="next-page cta-gradient" style="box-shadow: 0 10px 40px rgba(59, 130, 246, 0.25);">
+          <div>
+            <div class="next-page-meta" style="color:rgba(255,255,255,0.7); font-family:var(--mono);">Screening Options</div>
+            <h3 style="font-size:1.5rem; font-weight:800; color:#ffffff; margin-top:0.25rem;">Perform an asymmetry screening now</h3>
+          </div>
+          <div class="cta-buttons-container" style="display:flex; gap:1.25rem; flex-wrap:wrap; margin-top:1rem; align-items: center;">
+            <a href="photo-scan.html" class="cta-action cta-btn-white">
+              Upload Photo Scan
+            </a>
+            <a href="test.html" class="cta-action cta-btn-outline">
+              16s Live Webcam Test →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="assets/nav.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // ── INTERACTIVE LANDMARK TABLE HIGHLIGHTING ──
+      const indicesTable = document.getElementById('indices-table');
+      const techFaceSvg = document.getElementById('tech-face-svg');
+      const diagramHint = document.getElementById('diagram-hint');
+      
+      if (indicesTable && techFaceSvg) {
+        const rows = indicesTable.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+          row.addEventListener('mouseenter', () => {
+            // Remove previous active classes
+            rows.forEach(r => r.classList.remove('active-row'));
+            techFaceSvg.querySelectorAll('.diagram-node').forEach(n => n.classList.remove('active-highlight'));
+            
+            // Add active row class
+            row.classList.add('active-row');
+            
+            const nodeKey = row.getAttribute('data-node');
+            const targetNode = document.getElementById(`d-node-${nodeKey}`);
+            const indexNum = row.cells[1].innerText;
+            const variableName = row.cells[0].innerText;
+            
+            if (targetNode) {
+              targetNode.classList.add('active-highlight');
+              diagramHint.innerHTML = `Highlighted: <span style="color:#3b82f6">${variableName}</span> (MediaPipe Index <strong style="color:#ffffff">${indexNum}</strong>)`;
+            }
+          });
+        });
+        
+        // Reset when mouse leaves table container
+        indicesTable.addEventListener('mouseleave', () => {
+          rows.forEach(r => r.classList.remove('active-row'));
+          techFaceSvg.querySelectorAll('.diagram-node').forEach(n => n.classList.remove('active-highlight'));
+          diagramHint.innerText = 'Hover a row to highlight coordinates';
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>
