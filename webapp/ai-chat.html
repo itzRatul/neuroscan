@@ -543,8 +543,7 @@
         const micBtn = document.getElementById('micBtn');
         const ttsBtn = document.getElementById('ttsBtn');
 
-        const host = window.location.hostname || 'localhost';
-        const CHAT_BACKEND_URL = localStorage.getItem('ns_chat_backend_url') || `http://${host}:8001`;
+        const CHAT_BACKEND_URL = localStorage.getItem('ns_chat_backend_url') || 'https://itzratul-neuroscan-chat-backend.hf.space';
         const CHAT_API_URL = `${CHAT_BACKEND_URL}/chat`;
 
         // Relocate speaker button next to top navbar brand logo

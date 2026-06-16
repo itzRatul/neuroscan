@@ -509,8 +509,8 @@ function finishTest() {
       }
     };
     
-    const host = window.location.hostname || 'localhost';
-    fetch(`http://${host}:8001/webhook/test_result`, {
+    const chatBackendUrl = 'https://itzratul-neuroscan-chat-backend.hf.space';
+    fetch(`${chatBackendUrl}/webhook/test_result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
