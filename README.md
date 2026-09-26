@@ -1,4 +1,4 @@
-# 🧠 NeuroScan — AI-Powered Stroke Early-Warning Tool
+# NeuroScan — AI-Powered Stroke Early-Warning Tool
 
 NeuroScan is an end-to-end, AI-powered system designed to detect **facial movement asymmetry** (one of the primary signs of stroke under the clinical **FAST** protocol) using a simple webcam. It features a modern responsive web application, an ML-based analysis backend, and a conversational AI chat assistant integrated with a Telegram bot.
 
